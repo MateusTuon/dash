@@ -14,12 +14,21 @@
   --tx:#14283C; --dim:#6B7A88; --mut:#93A0AC;
   --pos:#0F6E56; --pos2:#1D9E75; --warn:#A87F14; --warn2:#C9A227; --neg:#C9524A;
   --f-disp:Fraunces,serif; --f-ui:Inter,system-ui,sans-serif; --f-num:"JetBrains Mono",monospace;
+  --acc:var(--pos); --line:var(--pos2); --line-prev:var(--rule2);
+}
+[data-tema="shopify"]{
+  --bg:#F1F1F1; --card:#FFFFFF; --card2:#F6F6F7; --rule:#E3E3E3; --rule2:#D0D0D0;
+  --tx:#303030; --dim:#616161; --mut:#8A8A8A;
+  --pos:#29845A; --pos2:#29845A; --warn:#B98900; --warn2:#FFD79D; --neg:#D72C0D;
+  --acc:#303030; --line:#2C6ECB; --line-prev:#9DC7EE;
+  --f-disp:Inter,system-ui,sans-serif; --f-ui:Inter,system-ui,sans-serif; --f-num:Inter,system-ui,sans-serif;
 }
 [data-tema="terminal"]{
   --bg:#0A0E0A; --card:#0F150F; --card2:#131B13; --rule:#1F3D2B; --rule2:#2E5940;
   --tx:#E8FFF0; --dim:#9BE8B7; --mut:#5E8A6F;
   --pos:#4ADE80; --pos2:#4ADE80; --warn:#FBBF24; --warn2:#FBBF24; --neg:#F87171;
   --f-disp:"JetBrains Mono",monospace; --f-ui:"JetBrains Mono",monospace; --f-num:"JetBrains Mono",monospace;
+  --acc:var(--pos); --line:var(--pos2); --line-prev:var(--rule2);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
@@ -39,13 +48,13 @@ h1{font:650 24px/1.1 var(--f-disp)}
 
 .tabs{display:flex;gap:8px;margin:14px 0 4px}
 .tab{flex:1;padding:10px 0;text-align:center;font:600 13px/1 var(--f-ui);color:var(--dim);background:var(--card);border:1px solid var(--rule);border-radius:8px}
-.tab[aria-selected="true"]{color:var(--bg);background:var(--pos);border-color:var(--pos)}
+.tab[aria-selected="true"]{color:var(--bg);background:var(--acc);border-color:var(--acc)}
 .note{font-size:11.5px;color:var(--mut);margin:8px 0 14px}
 .note b{color:var(--warn);font-weight:600}
 
 .bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 16px}
 .chip{font:500 12px/1 var(--f-num);padding:8px 11px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--dim)}
-.chip.on{background:var(--pos);border-color:var(--pos);color:var(--bg)}
+.chip.on{background:var(--acc);border-color:var(--acc);color:var(--bg)}
 .chip.tgl.on{background:var(--card2);color:var(--tx);border-color:var(--rule2)}
 .dts{display:none;gap:6px;align-items:center}
 .dts.show{display:flex}
@@ -54,12 +63,18 @@ h1{font:650 24px/1.1 var(--f-disp)}
 h2{font:650 16px/1.2 var(--f-disp);margin:22px 0 4px}
 .sub{font-size:12px;color:var(--dim);margin-bottom:10px}
 
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (min-width:640px){.cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}}
-@media (min-width:900px){.card.wide{grid-column:span 2}}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;grid-auto-flow:dense}
+@media (min-width:760px){.cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}}
+.card.sz-2{grid-column:span 2}
+.card.sz-3{grid-column:span 2}
+.card.sz-4{grid-column:1/-1}
+@media (min-width:760px){.card.sz-3{grid-column:span 3}.card.sz-4{grid-column:span 4}}
 .card{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px;position:relative}
-.card.wide{grid-column:1/-1}
-@media (max-width:899px){.card.wide{grid-column:1/-1}}
+[data-tema="shopify"] .card{border-radius:12px;border-color:#E3E3E3;box-shadow:0 1px 0 rgba(0,0,0,0.04)}
+[data-tema="shopify"] .card .k{text-transform:none;letter-spacing:0;font:600 13px/1.35 var(--f-ui);color:var(--tx);
+  text-decoration:underline dotted var(--rule2);text-underline-offset:3px;width:fit-content}
+[data-tema="shopify"] .card .v{font-weight:600;font-size:21px}
+
 .card .k{font:600 10px/1.3 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
 .card .v{font:600 23px/1.15 var(--f-num);margin-top:6px;word-break:break-word}
 .v.ok{color:var(--pos)} .v.watch{color:var(--warn)} .v.red{color:var(--neg)}
@@ -71,6 +86,8 @@ h2{font:650 16px/1.2 var(--f-disp);margin:22px 0 4px}
 .gauge i{position:absolute;top:-3.5px;width:3px;height:12px;background:var(--tx);border-radius:2px;transform:translateX(-50%)}
 .glbl{display:flex;justify-content:space-between;font:400 9.5px/1 var(--f-num);color:var(--mut);margin-top:5px}
 .chart{margin-top:8px;display:block;width:100%;max-height:150px}
+.chleg{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font:400 10.5px/1.4 var(--f-ui);color:var(--mut);margin-top:7px}
+.chleg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .tip{position:absolute;z-index:5;pointer-events:none;display:none;min-width:170px;
  background:var(--card);border:1px solid var(--rule2);border-radius:9px;padding:9px 11px;
  font:400 11.5px/1.55 var(--f-num);color:var(--tx)}
@@ -87,6 +104,10 @@ body.editing .ctools{display:flex}
 body.editing .card{padding-top:38px;cursor:grab}
 body.editing .card.dragging{opacity:0.45;cursor:grabbing}
 body.editing .card.nodrag{cursor:default}
+.rz{display:none;position:absolute;right:2px;bottom:2px;width:18px;height:18px;cursor:nwse-resize;
+ border-right:3px solid var(--rule2);border-bottom:3px solid var(--rule2);border-radius:0 0 6px 0}
+body.editing .card[data-id] .rz{display:block}
+.card.resizing{outline:2px dashed var(--acc);outline-offset:-2px}
 .ct{width:26px;height:24px;border-radius:6px;font:600 12px/1 var(--f-num);color:var(--mut);display:flex;align-items:center;justify-content:center}
 .ct.on{background:var(--card2);color:var(--pos)}
 .ct:hover{background:var(--card2)}
@@ -235,7 +256,7 @@ function carregarPreset(nome){
   if(!CFG.metricas)CFG.metricas=novaConfig().metricas;
   NATIVAS.forEach(m=>{if(!CFG.metricas.find(x=>x.id===m.id))CFG.metricas.push({id:m.id,on:!m.off,viz:m.viz})});
   periodo=CFG.periodo||{tipo:"30"}; comparar=CFG.comparar!==false;
-  document.documentElement.dataset.tema=CFG.tema||"studio";
+  document.documentElement.dataset.tema=CFG.tema||"studio";if(typeof nomeTema==="function")nomeTema();
   $("#pAtiva").textContent=nome||"(sem nome)";
 }
 function salvarPreset(nome){CFG.periodo=periodo;CFG.comparar=comparar;
@@ -307,7 +328,8 @@ let PREV_OK=true;
 function delta(cur,prev,inv){if(!comparar||cur==null||prev==null||!prev)return PREV_OK?"":`<span class="dl nt" title="histórico insuficiente">·</span>`;
  const p=((cur-prev)/Math.abs(prev))*100;if(Math.abs(p)<0.05)return`<span class="dl nt">—</span>`;
  const up=p>0,good=inv?!up:up;
- return`<span class="dl ${good?"ok":"red"}">${up?"▲":"▼"} ${Math.abs(p).toFixed(Math.abs(p)<10?1:0)}%</span>`}
+ const sh=document.documentElement.dataset.tema==="shopify";
+ return`<span class="dl ${good?"ok":"red"}">${up?(sh?"↗":"▲"):(sh?"↘":"▼")} ${Math.abs(p).toFixed(Math.abs(p)<10?1:0)}%</span>`}
 function cls(v,rg,inv){if(v==null||!rg)return"";
  if(!inv)return v>=rg.strong?"ok":v>=rg.watch?"watch":"red";
  return v<rg.watch?"ok":v<rg.strong?"watch":"red"}
@@ -321,48 +343,70 @@ function lbl(v,f){if(v==null)return"";
 function pill(x,y,txt,W){const w=txt.length*6.6+12,xx=Math.max(2,Math.min(W-w-2,x-w/2));
  return `<g><rect x="${xx.toFixed(1)}" y="${(y-16).toFixed(1)}" width="${w.toFixed(1)}" height="15" rx="7.5" fill="var(--tx)"/><text x="${(xx+w/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-family="var(--f-num)" font-size="10" fill="var(--bg)">${txt}</text></g>`}
 const CHART={};
-function svgLine(cur,prev,area,dates,fmtv,wide,chId,pdates){
-  if(chId)CHART[chId]={tipo:"line",cur,prev,dates,pdates,fmtv,wide};
+function abrev(v,f){const a=Math.abs(v);let s;
+ if(a>=1e6)s=(v/1e6).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mi";
+ else if(a>=1000)s=(v/1000).toLocaleString("pt-BR",{maximumFractionDigits:a>=10000?0:1})+" mil";
+ else s=v.toLocaleString("pt-BR",{maximumFractionDigits:a>=100?0:f==="pct"||f==="num"?2:2});
+ return (f==="brl"?"R$ ":"")+s+(f==="pct"?"%":"")}
+function lbl(v,f){if(v==null)return"";
+ if(f==="brl")return "R$ "+(Math.abs(v)>=1000?Math.round(v).toLocaleString("pt-BR"):v.toLocaleString("pt-BR",{maximumFractionDigits:2}));
+ if(f==="int")return Math.round(v).toLocaleString("pt-BR");
+ if(f==="pct")return v.toFixed(1)+"%";
+ return v>=100?Math.round(v).toLocaleString("pt-BR"):v.toFixed(2)}
+function pill(x,y,txt,W){const w=txt.length*6.6+12,xx=Math.max(2,Math.min(W-w-2,x-w/2));
+ return `<g><rect x="${xx.toFixed(1)}" y="${(y-16).toFixed(1)}" width="${w.toFixed(1)}" height="15" rx="7.5" fill="var(--tx)"/><text x="${(xx+w/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-family="var(--f-num)" font-size="10" fill="var(--bg)">${txt}</text></g>`}
+function fmtD(d){return d?d.slice(5).split("-").reverse().join("/"):""}
+function eixos(W,H,T,B,L,R,vMin,vMid,vMax,fmtv,dates,X){
+  let g="";
+  [[vMax,T+2],[vMid,(T+2+H-B)/2],[vMin,H-B]].forEach(([v,y],ix)=>{
+    g+=`<line x1="${L}" y1="${y.toFixed(1)}" x2="${W-R}" y2="${y.toFixed(1)}" stroke="var(--rule)" stroke-width="0.6"${ix<2?' stroke-dasharray="2 4"':''}/>`;
+    g+=`<text x="${L-5}" y="${(y+3).toFixed(1)}" text-anchor="end" font-family="var(--f-num)" font-size="8.5" fill="var(--mut)">${abrev(v,fmtv)}</text>`});
+  const n=dates.length,k=Math.min(W>=560?6:4,n);
+  for(let j=0;j<k;j++){const i=Math.round(j*(n-1)/((k-1)||1));
+    g+=`<text x="${X(i,n).toFixed(1)}" y="${H-2}" text-anchor="${j===0?"start":j===k-1?"end":"middle"}" font-family="var(--f-num)" font-size="8.5" fill="var(--mut)">${fmtD(dates[i])}</text>`}
+  return g}
+function chLeg(dates,pdates){
+  if(!dates||!dates.length)return"";
+  let s=`<div class="chleg"><span><i style="background:var(--line)"></i>${fmtD(dates[0])} – ${fmtD(dates[dates.length-1])}</span>`;
+  if(comparar&&pdates&&pdates.length)s+=`<span><i style="background:var(--line-prev)"></i>${fmtD(pdates[0])} – ${fmtD(pdates[pdates.length-1])} (anterior)</span>`;
+  return s+"</div>"}
+function svgLine(cur,prev,area,dates,fmtv,CW,chId,pdates){
+  if(chId)CHART[chId]={tipo:"line",cur,prev,dates,pdates,fmtv,CW};
   const all=cur.concat(comparar?prev:[]).filter(v=>v!=null);
   if(all.length<2)return"";
+  const SH=document.documentElement.dataset.tema==="shopify";
   const min=Math.min(...all),max=Math.max(...all),rng=(max-min)||1;
-  const W=wide?560:320,H=wide?96:88,T=20,B=14,L=4,R=4;
-  const PX=v=>H-B-((v-min)/rng)*(H-T-B), X=(i,n)=>L+(i/((n-1)||1))*(W-L-R);
+  const W=CW||320,H=W>=820?118:W>=560?104:96,T=SH?8:20,B=16,L=40,R=6;
+  const PX=v=>H-B-((v-min)/rng)*(H-T-B-2), X=(i,n)=>L+(i/((n-1)||1))*(W-L-R);
   function path(s){let d="",pen=false;
     s.forEach((v,i)=>{if(v==null){pen=false;return}
       d+=(pen?" L":" M")+X(i,s.length).toFixed(1)+" "+PX(v).toFixed(1);pen=true});return d}
   let out=`<svg class="chart" data-ch="${chId||""}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
-  out+=`<line x1="0" y1="${(H-B).toFixed(1)}" x2="${W}" y2="${(H-B).toFixed(1)}" stroke="var(--rule)" stroke-width="0.6"/>`;
-  out+=`<line x1="0" y1="${PX(max).toFixed(1)}" x2="${W}" y2="${PX(max).toFixed(1)}" stroke="var(--rule)" stroke-width="0.5" stroke-dasharray="2 4"/>`;
-  if(comparar&&prev.length>1)out+=`<path d="${path(prev)}" fill="none" stroke="var(--rule2)" stroke-width="1" stroke-dasharray="3 3"/>`;
-  if(area)out+=`<path d="${path(cur)} L ${W-R} ${H-B} L ${L} ${H-B} Z" fill="var(--pos2)" opacity="0.12" stroke="none"/>`;
-  out+=`<path d="${path(cur)}" fill="none" stroke="var(--pos2)" stroke-width="1.6"/>`;
-  const n=cur.length;
-  const marks=n<=10?cur.map((v,i)=>v==null?null:i).filter(i=>i!=null)
-    :[cur.indexOf(Math.max(...cur.filter(v=>v!=null))),cur.indexOf(Math.min(...cur.filter(v=>v!=null))),n-1].filter((v,i,a)=>v>=0&&a.indexOf(v)===i);
-  marks.forEach(i=>{const v=cur[i];if(v==null)return;const x=X(i,n),y=PX(v);
-    out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4" fill="var(--pos2)"/>`+pill(x,y-3,lbl(v,fmtv),W)});
-  if(dates&&dates.length){
-    out+=`<text x="${L}" y="${H-2}" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[0].slice(5).split("-").reverse().join("/")}</text>`;
-    out+=`<text x="${W-R}" y="${H-2}" text-anchor="end" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[dates.length-1].slice(5).split("-").reverse().join("/")}</text>`;
-  }
-  return out+"</svg>"}
-function svgBar(cur,dates,fmtv,wide,chId,prev,pdates){
-  if(chId)CHART[chId]={tipo:"bar",cur,prev:prev||[],dates,pdates,fmtv,wide};
+  out+=eixos(W,H,T,B,L,R,min,(min+max)/2,max,fmtv,dates,X);
+  if(comparar&&prev.length>1)out+=`<path d="${path(prev)}" fill="none" stroke="var(--line-prev)" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+  if(area)out+=`<path d="${path(cur)} L ${W-R} ${H-B} L ${L} ${H-B} Z" fill="var(--line)" opacity="0.12" stroke="none"/>`;
+  out+=`<path d="${path(cur)}" fill="none" stroke="var(--line)" stroke-width="1.6"/>`;
+  if(!SH){const n=cur.length;
+    const marks=n<=10?cur.map((v,i)=>v==null?null:i).filter(i=>i!=null)
+      :[cur.indexOf(Math.max(...cur.filter(v=>v!=null))),cur.indexOf(Math.min(...cur.filter(v=>v!=null))),n-1].filter((v,i,a)=>v>=0&&a.indexOf(v)===i);
+    marks.forEach(i=>{const v=cur[i];if(v==null)return;const x=X(i,n),y=PX(v);
+      out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4" fill="var(--line)"/>`+pill(x,y-3,lbl(v,fmtv),W)});}
+  return out+"</svg>"+chLeg(dates,pdates)}
+function svgBar(cur,dates,fmtv,CW,chId,prev,pdates){
+  if(chId)CHART[chId]={tipo:"bar",cur,prev:prev||[],dates,pdates,fmtv,CW};
   const vals=cur.filter(v=>v!=null); if(!vals.length)return"";
-  const max=Math.max(...vals)||1,W=wide?560:320,H=wide?96:88,T=20,B=14,n=cur.length,bw=Math.max(2,((W-8)/n)-2);
+  const SH=document.documentElement.dataset.tema==="shopify";
+  const max=Math.max(...vals)||1,W=CW||320,H=W>=820?118:W>=560?104:96,T=SH?8:20,B=16,L=40,R=6,n=cur.length;
+  const slot=(W-L-R)/n,bw=Math.max(2,slot-2);
+  const X=(i)=>L+i*slot+bw/2;
   let out=`<svg class="chart" data-ch="${chId||""}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
-  out+=`<line x1="0" y1="${H-B}" x2="${W}" y2="${H-B}" stroke="var(--rule)" stroke-width="0.6"/>`;
+  out+=eixos(W,H,T,B,L,R,0,max/2,max,fmtv,dates,(i,nn)=>X(i));
   let iMax=-1;cur.forEach((v,i)=>{if(v!=null&&(iMax<0||v>cur[iMax]))iMax=i});
-  cur.forEach((v,i)=>{if(v==null)return;const h=Math.max(1,(v/max)*(H-T-B)),x=4+i*((W-8)/n);
-    out+=`<rect x="${x.toFixed(1)}" y="${(H-B-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="var(--pos2)"${i===iMax?"":" opacity=\"0.75\""}/>`});
-  if(iMax>=0){const x=4+iMax*((W-8)/n)+bw/2,y=H-B-Math.max(1,(cur[iMax]/max)*(H-T-B));
-    out+=pill(x,y-2,lbl(cur[iMax],fmtv),W)}
-  if(dates&&dates.length){
-    out+=`<text x="4" y="${H-2}" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[0].slice(5).split("-").reverse().join("/")}</text>`;
-    out+=`<text x="${W-4}" y="${H-2}" text-anchor="end" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[dates.length-1].slice(5).split("-").reverse().join("/")}</text>`;
-  }
-  return out+"</svg>"}
+  cur.forEach((v,i)=>{if(v==null)return;const h=Math.max(1,(v/max)*(H-T-B-2)),x=L+i*slot;
+    out+=`<rect x="${x.toFixed(1)}" y="${(H-B-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="var(--line)"${i===iMax?"":" opacity=\"0.72\""}/>`});
+  if(!SH&&iMax>=0){const y=H-B-Math.max(1,(cur[iMax]/max)*(H-T-B-2));
+    out+=pill(X(iMax),y-2,lbl(cur[iMax],fmtv),W)}
+  return out+"</svg>"+chLeg(dates,pdates)}
 
 /* =================== render =================== */
 function render(){
@@ -380,23 +424,25 @@ function render(){
     const vc=valorAgg(m.id,cur), vp=valorAgg(m.id,prev);
     if(vc==null&&(m.id==="sessoes"||m.id==="cvr"||m.id==="rpv"))return;
     const rg=def.regua&&RG?RG[def.regua]:null;
-    const wide=m.viz==="line"||m.viz==="bar"||m.viz==="area"||m.viz==="tabela";
-    h+=`<div class="card${wide?" wide":""}" data-id="${m.id}" draggable="${editing}">
+    const sz=m.sz||((m.viz==="line"||m.viz==="bar"||m.viz==="area"||m.viz==="tabela")?2:1);
+    m.sz=sz;
+    const wide=sz>=2, CW=sz>=3?820:sz===2?560:320;
+    h+=`<div class="card sz-${sz}" data-id="${m.id}" draggable="${editing}">
       <div class="ctools">
         ${["kpi","line","bar","area","tabela"].map(v=>`<button class="ct${m.viz===v?" on":""}" data-viz="${v}" title="${v}">${{kpi:"#",line:"∿",bar:"▮",area:"◪",tabela:"≡"}[v]}</button>`).join("")}
         <button class="ct" data-mv="-1" title="subir">↑</button>
         <button class="ct" data-mv="1" title="descer">↓</button>
         <button class="ct" data-off="1" title="ocultar">✕</button>
       </div>
-      <div class="k">${def.nome}${def.custom?" ✦":""}</div>
+      <div class="k">${def.nome}${def.custom?" ✦":""}</div><span class="rz" title="redimensionar"></span>
       <div class="v ${cls(vc,rg,def.inv)}">${fmt(vc,def.fmt)}${delta(vc,vp,def.inv)}</div>`;
     if(rg){
       const lo=rg.watch*0.6,hi=rg.strong*1.4,p=vc==null?0:Math.min(1,Math.max(0,(vc-lo)/(hi-lo)));
       h+=`<div class="gauge"><i style="left:${(p*100).toFixed(1)}%"></i></div>
       <div class="glbl"><span>${fmt(rg.watch,"num")}</span><span>${fmt(rg.strong,"num")}</span></div>`;
     }
-    if(m.viz==="line"||m.viz==="area")h+=svgLine(serie(m.id,cur),serie(m.id,prev),m.viz==="area",cur.map(r=>r.date),def.fmt,wide,m.id,prev.map(r=>r.date));
-    if(m.viz==="bar")h+=svgBar(serie(m.id,cur),cur.map(r=>r.date),def.fmt,wide,m.id,serie(m.id,prev),prev.map(r=>r.date));
+    if(m.viz==="line"||m.viz==="area")h+=svgLine(serie(m.id,cur),serie(m.id,prev),m.viz==="area",cur.map(r=>r.date),def.fmt,CW,m.id,prev.map(r=>r.date));
+    if(m.viz==="bar")h+=svgBar(serie(m.id,cur),cur.map(r=>r.date),def.fmt,CW,m.id,serie(m.id,prev),prev.map(r=>r.date));
     if(m.viz==="tabela"){
       const s=serie(m.id,cur),last=cur.slice(-8),sl=s.slice(-8);
       h+=`<table class="tbl-mini">${last.map((r,i)=>`<tr><td>${r.date.slice(5)}</td><td>${fmt(sl[i],def.fmt)}</td></tr>`).join("")}</table>`;
@@ -419,6 +465,29 @@ function render(){
   $("#main").innerHTML=h;
 
   attachHover();
+
+  /* alça de redimensionar (canto inferior direito) */
+  $$("#main .card[data-id] .rz").forEach(rz=>{
+    const cardEl=rz.closest(".card");
+    let resizing=false;
+    rz.addEventListener("pointerenter",()=>cardEl.setAttribute("draggable","false"));
+    rz.addEventListener("pointerleave",()=>{if(!resizing)cardEl.setAttribute("draggable",String(editing))});
+    rz.addEventListener("pointerdown",e=>{
+      e.preventDefault();e.stopPropagation();
+      const card=rz.closest(".card"),id=card.dataset.id;
+      const grid=$("#main .cards"),colW=grid.getBoundingClientRect().width/ (getComputedStyle(grid).gridTemplateColumns.split(" ").length);
+      const m=CFG.metricas.find(x=>x.id===id),sz0=m.sz||1,x0=e.clientX;
+      resizing=true;card.classList.add("resizing");card.setAttribute("draggable","false");
+      try{rz.setPointerCapture(e.pointerId)}catch(x){}
+      function mv(ev){
+        let s=Math.max(1,Math.min(4,Math.round(sz0+(ev.clientX-x0)/colW)));
+        if(s!==m.sz){m.sz=s;card.className=card.className.replace(/sz-\d/,"sz-"+s)}}
+      function up(){resizing=false;document.removeEventListener("pointermove",mv);
+        document.removeEventListener("pointerup",up);render()}
+      document.addEventListener("pointermove",mv);
+      document.addEventListener("pointerup",up);});
+    rz.addEventListener("dragstart",e=>e.preventDefault());
+  });
 
   /* drag and drop (desktop) — setas continuam valendo no touch */
   if(editing){
@@ -466,24 +535,28 @@ function attachHover(){
     const card=svg.closest(".card"); if(!card)return;
     let tip=card.querySelector(".tip");
     if(!tip){tip=document.createElement("div");tip.className="tip";card.appendChild(tip)}
-    const W=D.wide?560:320,H=D.wide?96:88,T=20,B=14,L=4,R=4,n=D.cur.length;
+    const SH=document.documentElement.dataset.tema==="shopify";
+    const W=D.CW||320,H=W>=820?118:W>=560?104:96,T=SH?8:20,B=16,L=40,R=6,n=D.cur.length;
     const all=D.cur.concat(comparar?D.prev:[]).filter(v=>v!=null);
-    const min=Math.min(...all),max=Math.max(...all),rng=(max-min)||1;
-    const PX=v=>H-B-((v-min)/rng)*(H-T-B);
-    const X=i=>D.tipo==="bar"?4+i*((W-8)/n)+Math.max(2,((W-8)/n)-2)/2:L+(i/((n-1)||1))*(W-L-R);
+    let min=Math.min(...all);const max=Math.max(...all);
+    if(D.tipo==="bar")min=0;
+    const rng=(max-min)||1;
+    const PX=v=>H-B-((v-min)/rng)*(H-T-B-2);
+    const slot=(W-L-R)/n;
+    const X=i=>D.tipo==="bar"?L+i*slot+Math.max(2,slot-2)/2:L+(i/((n-1)||1))*(W-L-R);
     let hov=null;
     function limpar(){if(hov){hov.remove();hov=null}tip.style.display="none"}
     function mover(clientX,clientY){
       const r=svg.getBoundingClientRect();
       const vx=(clientX-r.left)/r.width*W;
-      let i=D.tipo==="bar"?Math.floor((vx-4)/((W-8)/n)):Math.round((vx-L)/(W-L-R)*(n-1));
+      let i=D.tipo==="bar"?Math.floor((vx-L)/slot):Math.round((vx-L)/(W-L-R)*(n-1));
       i=Math.max(0,Math.min(n-1,i));
       const v=D.cur[i]; if(v==null){limpar();return}
       if(!hov){hov=document.createElementNS(SVGNS,"g");svg.appendChild(hov)}
       const x=X(i),pv=(comparar&&D.prev&&D.prev[i]!=null)?D.prev[i]:null;
       let g=`<line x1="${x.toFixed(1)}" y1="${T-4}" x2="${x.toFixed(1)}" y2="${H-B}" stroke="var(--rule2)" stroke-width="1"/>`;
-      if(D.tipo!=="bar"){g+=`<circle cx="${x.toFixed(1)}" cy="${PX(v).toFixed(1)}" r="3.4" fill="var(--pos2)" stroke="var(--card)" stroke-width="1.4"/>`;
-        if(pv!=null)g+=`<circle cx="${x.toFixed(1)}" cy="${PX(pv).toFixed(1)}" r="2.6" fill="var(--rule2)"/>`}
+      if(D.tipo!=="bar"){g+=`<circle cx="${x.toFixed(1)}" cy="${PX(v).toFixed(1)}" r="3.4" fill="var(--line)" stroke="var(--card)" stroke-width="1.4"/>`;
+        if(pv!=null)g+=`<circle cx="${x.toFixed(1)}" cy="${PX(pv).toFixed(1)}" r="2.6" fill="var(--line-prev)"/>`}
       hov.innerHTML=g;
       let dl="";
       if(pv){const p=((v-pv)/Math.abs(pv))*100,def=metricaDef(id),good=def&&def.inv?p<0:p>0;
@@ -529,8 +602,11 @@ function syncUI(){
 }
 
 /* =================== interações globais =================== */
+const TEMAS=["studio","terminal","shopify"];
+function nomeTema(){$("#btnTema").textContent="◐ "+document.documentElement.dataset.tema}
 $("#btnTema").onclick=()=>{const el=document.documentElement;
- el.dataset.tema=el.dataset.tema==="terminal"?"studio":"terminal";CFG.tema=el.dataset.tema;render()};
+ el.dataset.tema=TEMAS[(TEMAS.indexOf(el.dataset.tema)+1)%TEMAS.length];
+ CFG.tema=el.dataset.tema;nomeTema();render()};
 $("#btnEdit").onclick=()=>{editing=!editing;document.body.classList.toggle("editing",editing);
  $("#btnEdit").classList.toggle("on",editing);$("#btnEdit").textContent=editing?"✓ pronto":"✎ editar";
  if(editing){renderLib();renderPresets()} render() };
