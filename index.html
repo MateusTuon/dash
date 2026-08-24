@@ -60,7 +60,7 @@ h2{font:650 16px/1.2 var(--f-disp);margin:22px 0 4px}
 .card{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px;position:relative}
 .card.wide{grid-column:1/-1}
 @media (max-width:899px){.card.wide{grid-column:1/-1}}
-.card .k{font:600 10px/1.3 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--dim);padding-right:60px}
+.card .k{font:600 10px/1.3 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
 .card .v{font:600 23px/1.15 var(--f-num);margin-top:6px;word-break:break-word}
 .v.ok{color:var(--pos)} .v.watch{color:var(--warn)} .v.red{color:var(--neg)}
 .dl{font:600 11px/1 var(--f-num);margin-left:4px}
@@ -71,13 +71,22 @@ h2{font:650 16px/1.2 var(--f-disp);margin:22px 0 4px}
 .gauge i{position:absolute;top:-3.5px;width:3px;height:12px;background:var(--tx);border-radius:2px;transform:translateX(-50%)}
 .glbl{display:flex;justify-content:space-between;font:400 9.5px/1 var(--f-num);color:var(--mut);margin-top:5px}
 .chart{margin-top:8px;display:block;width:100%;max-height:150px}
+.tip{position:absolute;z-index:5;pointer-events:none;display:none;min-width:170px;
+ background:var(--card);border:1px solid var(--rule2);border-radius:9px;padding:9px 11px;
+ font:400 11.5px/1.55 var(--f-num);color:var(--tx)}
+.tip .td{font:600 11px/1.3 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.tip .tv{font-size:15px;font-weight:600}
+.tip .tp{color:var(--dim);border-top:1px dashed var(--rule);margin-top:5px;padding-top:5px}
 .tbl-mini{width:100%;font:400 11px/1.6 var(--f-num);margin-top:8px}
 .tbl-mini td{padding:2px 0;border-bottom:1px solid var(--rule)}
 .tbl-mini td:last-child{text-align:right}
 .tbl-mini tr:last-child td{border-bottom:none}
 
-.ctools{position:absolute;top:8px;right:8px;display:none;gap:2px}
+.ctools{position:absolute;top:6px;left:8px;right:8px;display:none;gap:2px;justify-content:flex-end;flex-wrap:wrap}
 body.editing .ctools{display:flex}
+body.editing .card{padding-top:38px;cursor:grab}
+body.editing .card.dragging{opacity:0.45;cursor:grabbing}
+body.editing .card.nodrag{cursor:default}
 .ct{width:26px;height:24px;border-radius:6px;font:600 12px/1 var(--f-num);color:var(--mut);display:flex;align-items:center;justify-content:center}
 .ct.on{background:var(--card2);color:var(--pos)}
 .ct:hover{background:var(--card2)}
@@ -311,7 +320,9 @@ function lbl(v,f){if(v==null)return"";
  return v>=100?Math.round(v).toLocaleString("pt-BR"):v.toFixed(2)}
 function pill(x,y,txt,W){const w=txt.length*6.6+12,xx=Math.max(2,Math.min(W-w-2,x-w/2));
  return `<g><rect x="${xx.toFixed(1)}" y="${(y-16).toFixed(1)}" width="${w.toFixed(1)}" height="15" rx="7.5" fill="var(--tx)"/><text x="${(xx+w/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-family="var(--f-num)" font-size="10" fill="var(--bg)">${txt}</text></g>`}
-function svgLine(cur,prev,area,dates,fmtv,wide){
+const CHART={};
+function svgLine(cur,prev,area,dates,fmtv,wide,chId,pdates){
+  if(chId)CHART[chId]={tipo:"line",cur,prev,dates,pdates,fmtv,wide};
   const all=cur.concat(comparar?prev:[]).filter(v=>v!=null);
   if(all.length<2)return"";
   const min=Math.min(...all),max=Math.max(...all),rng=(max-min)||1;
@@ -320,7 +331,7 @@ function svgLine(cur,prev,area,dates,fmtv,wide){
   function path(s){let d="",pen=false;
     s.forEach((v,i)=>{if(v==null){pen=false;return}
       d+=(pen?" L":" M")+X(i,s.length).toFixed(1)+" "+PX(v).toFixed(1);pen=true});return d}
-  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+  let out=`<svg class="chart" data-ch="${chId||""}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
   out+=`<line x1="0" y1="${(H-B).toFixed(1)}" x2="${W}" y2="${(H-B).toFixed(1)}" stroke="var(--rule)" stroke-width="0.6"/>`;
   out+=`<line x1="0" y1="${PX(max).toFixed(1)}" x2="${W}" y2="${PX(max).toFixed(1)}" stroke="var(--rule)" stroke-width="0.5" stroke-dasharray="2 4"/>`;
   if(comparar&&prev.length>1)out+=`<path d="${path(prev)}" fill="none" stroke="var(--rule2)" stroke-width="1" stroke-dasharray="3 3"/>`;
@@ -336,10 +347,11 @@ function svgLine(cur,prev,area,dates,fmtv,wide){
     out+=`<text x="${W-R}" y="${H-2}" text-anchor="end" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[dates.length-1].slice(5).split("-").reverse().join("/")}</text>`;
   }
   return out+"</svg>"}
-function svgBar(cur,dates,fmtv,wide){
+function svgBar(cur,dates,fmtv,wide,chId,prev,pdates){
+  if(chId)CHART[chId]={tipo:"bar",cur,prev:prev||[],dates,pdates,fmtv,wide};
   const vals=cur.filter(v=>v!=null); if(!vals.length)return"";
   const max=Math.max(...vals)||1,W=wide?560:320,H=wide?96:88,T=20,B=14,n=cur.length,bw=Math.max(2,((W-8)/n)-2);
-  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+  let out=`<svg class="chart" data-ch="${chId||""}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
   out+=`<line x1="0" y1="${H-B}" x2="${W}" y2="${H-B}" stroke="var(--rule)" stroke-width="0.6"/>`;
   let iMax=-1;cur.forEach((v,i)=>{if(v!=null&&(iMax<0||v>cur[iMax]))iMax=i});
   cur.forEach((v,i)=>{if(v==null)return;const h=Math.max(1,(v/max)*(H-T-B)),x=4+i*((W-8)/n);
@@ -369,7 +381,7 @@ function render(){
     if(vc==null&&(m.id==="sessoes"||m.id==="cvr"||m.id==="rpv"))return;
     const rg=def.regua&&RG?RG[def.regua]:null;
     const wide=m.viz==="line"||m.viz==="bar"||m.viz==="area"||m.viz==="tabela";
-    h+=`<div class="card${wide?" wide":""}" data-id="${m.id}">
+    h+=`<div class="card${wide?" wide":""}" data-id="${m.id}" draggable="${editing}">
       <div class="ctools">
         ${["kpi","line","bar","area","tabela"].map(v=>`<button class="ct${m.viz===v?" on":""}" data-viz="${v}" title="${v}">${{kpi:"#",line:"∿",bar:"▮",area:"◪",tabela:"≡"}[v]}</button>`).join("")}
         <button class="ct" data-mv="-1" title="subir">↑</button>
@@ -383,8 +395,8 @@ function render(){
       h+=`<div class="gauge"><i style="left:${(p*100).toFixed(1)}%"></i></div>
       <div class="glbl"><span>${fmt(rg.watch,"num")}</span><span>${fmt(rg.strong,"num")}</span></div>`;
     }
-    if(m.viz==="line"||m.viz==="area")h+=svgLine(serie(m.id,cur),serie(m.id,prev),m.viz==="area",cur.map(r=>r.date),def.fmt,wide);
-    if(m.viz==="bar")h+=svgBar(serie(m.id,cur),cur.map(r=>r.date),def.fmt,wide);
+    if(m.viz==="line"||m.viz==="area")h+=svgLine(serie(m.id,cur),serie(m.id,prev),m.viz==="area",cur.map(r=>r.date),def.fmt,wide,m.id,prev.map(r=>r.date));
+    if(m.viz==="bar")h+=svgBar(serie(m.id,cur),cur.map(r=>r.date),def.fmt,wide,m.id,serie(m.id,prev),prev.map(r=>r.date));
     if(m.viz==="tabela"){
       const s=serie(m.id,cur),last=cur.slice(-8),sl=s.slice(-8);
       h+=`<table class="tbl-mini">${last.map((r,i)=>`<tr><td>${r.date.slice(5)}</td><td>${fmt(sl[i],def.fmt)}</td></tr>`).join("")}</table>`;
@@ -397,7 +409,7 @@ function render(){
   const f=b.freq_15d;
   if(f!=null&&RG){
     const g=RG.freq_guardrail_15d,p=Math.min(1,Math.max(0,f/(g*1.5)));
-    h+=`<div class="card"><div class="k">Guardrail · Freq 15d fixa</div>
+    h+=`<div class="card nodrag"><div class="k">Guardrail · Freq 15d fixa</div>
     <div class="v ${f<g*0.85?"ok":f<g?"watch":"red"}">${fmt(f,"num")}</div>
     <div class="gauge inv"><i style="left:${(p*100).toFixed(1)}%"></i></div>
     <div class="glbl"><span>0</span><span>${fmt(g,"num")}</span></div>
@@ -405,6 +417,33 @@ function render(){
   }
   h+="</div>";
   $("#main").innerHTML=h;
+
+  attachHover();
+
+  /* drag and drop (desktop) — setas continuam valendo no touch */
+  if(editing){
+    const grid=$("#main .cards");
+    let dragEl=null;
+    $$("#main .card[draggable='true']").forEach(cd=>{
+      cd.addEventListener("dragstart",e=>{dragEl=cd;cd.classList.add("dragging");
+        e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain",cd.dataset.id)}catch(x){}});
+      cd.addEventListener("dragend",()=>{
+        if(!dragEl)return;dragEl.classList.remove("dragging");
+        const ordem=[...grid.querySelectorAll(".card[data-id]")].map(c=>c.dataset.id);
+        CFG.metricas.sort((a,b)=>{
+          const ia=ordem.indexOf(a.id),ib=ordem.indexOf(b.id);
+          if(ia<0&&ib<0)return 0;if(ia<0)return 1;if(ib<0)return -1;return ia-ib});
+        dragEl=null;render()});
+    });
+    grid.addEventListener("dragover",e=>{
+      if(!dragEl)return;e.preventDefault();e.dataTransfer.dropEffect="move";
+      const alvo=e.target.closest(".card[data-id]");
+      if(!alvo||alvo===dragEl)return;
+      const r=alvo.getBoundingClientRect();
+      const antes=(e.clientX-r.left)/r.width<0.5||(e.clientY-r.top)/r.height<0.5;
+      grid.insertBefore(dragEl,antes?alvo:alvo.nextSibling);});
+    grid.addEventListener("drop",e=>e.preventDefault());
+  }
 
   /* handlers dos cards (modo edição) */
   $$(".ct[data-viz]").forEach(btn=>btn.onclick=e=>{
@@ -419,6 +458,53 @@ function render(){
     CFG.metricas.find(x=>x.id===id).on=false;renderLib();render()});
 }
 
+const SVGNS="http://www.w3.org/2000/svg";
+function fmtDia(d){return d?d.slice(5).split("-").reverse().join("/"):"—"}
+function attachHover(){
+  $$("#main svg[data-ch]").forEach(svg=>{
+    const id=svg.dataset.ch, D=CHART[id]; if(!id||!D)return;
+    const card=svg.closest(".card"); if(!card)return;
+    let tip=card.querySelector(".tip");
+    if(!tip){tip=document.createElement("div");tip.className="tip";card.appendChild(tip)}
+    const W=D.wide?560:320,H=D.wide?96:88,T=20,B=14,L=4,R=4,n=D.cur.length;
+    const all=D.cur.concat(comparar?D.prev:[]).filter(v=>v!=null);
+    const min=Math.min(...all),max=Math.max(...all),rng=(max-min)||1;
+    const PX=v=>H-B-((v-min)/rng)*(H-T-B);
+    const X=i=>D.tipo==="bar"?4+i*((W-8)/n)+Math.max(2,((W-8)/n)-2)/2:L+(i/((n-1)||1))*(W-L-R);
+    let hov=null;
+    function limpar(){if(hov){hov.remove();hov=null}tip.style.display="none"}
+    function mover(clientX,clientY){
+      const r=svg.getBoundingClientRect();
+      const vx=(clientX-r.left)/r.width*W;
+      let i=D.tipo==="bar"?Math.floor((vx-4)/((W-8)/n)):Math.round((vx-L)/(W-L-R)*(n-1));
+      i=Math.max(0,Math.min(n-1,i));
+      const v=D.cur[i]; if(v==null){limpar();return}
+      if(!hov){hov=document.createElementNS(SVGNS,"g");svg.appendChild(hov)}
+      const x=X(i),pv=(comparar&&D.prev&&D.prev[i]!=null)?D.prev[i]:null;
+      let g=`<line x1="${x.toFixed(1)}" y1="${T-4}" x2="${x.toFixed(1)}" y2="${H-B}" stroke="var(--rule2)" stroke-width="1"/>`;
+      if(D.tipo!=="bar"){g+=`<circle cx="${x.toFixed(1)}" cy="${PX(v).toFixed(1)}" r="3.4" fill="var(--pos2)" stroke="var(--card)" stroke-width="1.4"/>`;
+        if(pv!=null)g+=`<circle cx="${x.toFixed(1)}" cy="${PX(pv).toFixed(1)}" r="2.6" fill="var(--rule2)"/>`}
+      hov.innerHTML=g;
+      let dl="";
+      if(pv){const p=((v-pv)/Math.abs(pv))*100,def=metricaDef(id),good=def&&def.inv?p<0:p>0;
+        dl=`<span style="color:${Math.abs(p)<0.05?"var(--mut)":good?"var(--pos)":"var(--neg)"}">${p>0?"▲":p<0?"▼":"—"} ${Math.abs(p).toFixed(1)}% da comparação</span>`}
+      tip.innerHTML=`<div class="td">${fmtDia(D.dates[i])}</div>
+        <div class="tv">${fmt(v,D.fmtv)}</div>${dl?`<div>${dl}</div>`:""}
+        ${pv!=null?`<div class="tp">${fmtDia(D.pdates&&D.pdates[i])} (anterior)<br><b>${fmt(pv,D.fmtv)}</b></div>`:""}`;
+      tip.style.display="block";
+      const rc=card.getBoundingClientRect(),tw=tip.offsetWidth;
+      let lx=clientX-rc.left+14;
+      if(lx+tw>rc.width-8)lx=clientX-rc.left-tw-14;
+      tip.style.left=Math.max(6,lx)+"px";
+      tip.style.top=Math.max(6,clientY-rc.top-tip.offsetHeight-10)+"px";
+    }
+    svg.addEventListener("mousemove",e=>mover(e.clientX,e.clientY));
+    svg.addEventListener("mouseleave",limpar);
+    svg.addEventListener("touchstart",e=>{const t=e.touches[0];mover(t.clientX,t.clientY)},{passive:true});
+    svg.addEventListener("touchmove",e=>{const t=e.touches[0];mover(t.clientX,t.clientY)},{passive:true});
+    svg.addEventListener("touchend",limpar);
+  });
+}
 function renderLib(){
   $("#lib").innerHTML=CFG.metricas.map(m=>{
     const d=metricaDef(m.id);return d?`<button class="lchip${m.on?" on":""}" data-id="${m.id}">${m.on?"● ":"○ "}${d.nome}</button>`:""}).join("");
@@ -447,7 +533,7 @@ $("#btnTema").onclick=()=>{const el=document.documentElement;
  el.dataset.tema=el.dataset.tema==="terminal"?"studio":"terminal";CFG.tema=el.dataset.tema;render()};
 $("#btnEdit").onclick=()=>{editing=!editing;document.body.classList.toggle("editing",editing);
  $("#btnEdit").classList.toggle("on",editing);$("#btnEdit").textContent=editing?"✓ pronto":"✎ editar";
- if(editing){renderLib();renderPresets()} };
+ if(editing){renderLib();renderPresets()} render() };
 $$("#periodbar .chip[data-p]").forEach(c=>c.onclick=()=>{
   periodo={tipo:c.dataset.p,de:periodo.de,ate:periodo.ate};syncUI();if(c.dataset.p!=="custom")render()});
 $("#dgo").onclick=()=>{if($("#d1").value&&$("#d2").value){periodo={tipo:"custom",de:$("#d1").value,ate:$("#d2").value};render()}};
