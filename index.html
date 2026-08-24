@@ -8,322 +8,475 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --navy:#0F2233; --navy2:#16324A; --navy3:#1D3E5C;
-  --cream:#F5EFE2; --cream-dim:#B8C4CE;
-  --teal:#3FA69B; --gold:#C9A227; --red:#C4554D;
-  --rule:#27455F;
+/* ============ temas ============ */
+:root, [data-tema="studio"]{
+  --bg:#F7F3EA; --card:#FFFFFF; --card2:#F1EBDD; --rule:#DCD4C2; --rule2:#C8BEA6;
+  --tx:#14283C; --dim:#6B7A88; --mut:#93A0AC;
+  --pos:#0F6E56; --pos2:#1D9E75; --warn:#A87F14; --warn2:#C9A227; --neg:#C9524A;
+  --f-disp:Fraunces,serif; --f-ui:Inter,system-ui,sans-serif; --f-num:"JetBrains Mono",monospace;
+}
+[data-tema="terminal"]{
+  --bg:#0A0E0A; --card:#0F150F; --card2:#131B13; --rule:#1F3D2B; --rule2:#2E5940;
+  --tx:#E8FFF0; --dim:#9BE8B7; --mut:#5E8A6F;
+  --pos:#4ADE80; --pos2:#4ADE80; --warn:#FBBF24; --warn2:#FBBF24; --neg:#F87171;
+  --f-disp:"JetBrains Mono",monospace; --f-ui:"JetBrains Mono",monospace; --f-num:"JetBrains Mono",monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--navy);color:var(--cream);font:400 15px/1.5 Inter,system-ui,sans-serif;padding-bottom:56px}
-.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+body{background:var(--bg);color:var(--tx);font:400 15px/1.5 var(--f-ui);padding-bottom:60px}
+.wrap{max-width:820px;margin:0 auto;padding:0 14px}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select{font:400 13px/1 var(--f-num);color:var(--tx);background:var(--card);border:1px solid var(--rule);border-radius:7px;padding:8px 10px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--pos2);outline-offset:1px}
 
-header{padding:22px 0 14px;border-bottom:1px solid var(--rule)}
-.eyebrow{font:600 10px/1 Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
-h1{font:650 26px/1.15 Fraunces,serif;margin-top:6px}
-.updated{font:400 12px/1.4 "JetBrains Mono",monospace;color:var(--cream-dim);margin-top:6px}
+header{padding:20px 0 12px;border-bottom:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.eyebrow{font:600 10px/1 var(--f-ui);letter-spacing:.16em;text-transform:uppercase;color:var(--pos)}
+h1{font:650 24px/1.1 var(--f-disp)}
+.hbtns{margin-left:auto;display:flex;gap:8px}
+.hbtn{font-size:12px;padding:8px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--dim)}
+.hbtn.on{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+.updated{width:100%;font:400 11.5px/1.4 var(--f-num);color:var(--mut)}
 
-.tabs{display:flex;gap:8px;margin:16px 0}
-.tab{flex:1;padding:10px 0;text-align:center;font:600 13px/1 Inter;color:var(--cream-dim);
-  background:var(--navy2);border:1px solid var(--rule);border-radius:8px;cursor:pointer}
-.tab[aria-selected="true"]{color:var(--navy);background:var(--teal);border-color:var(--teal)}
-.tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.tabs{display:flex;gap:8px;margin:14px 0 4px}
+.tab{flex:1;padding:10px 0;text-align:center;font:600 13px/1 var(--f-ui);color:var(--dim);background:var(--card);border:1px solid var(--rule);border-radius:8px}
+.tab[aria-selected="true"]{color:var(--bg);background:var(--pos);border-color:var(--pos)}
+.note{font-size:11.5px;color:var(--mut);margin:8px 0 14px}
+.note b{color:var(--warn);font-weight:600}
 
-.note{font-size:11.5px;color:var(--cream-dim);margin:2px 0 14px}
-.note b{color:var(--gold);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 16px}
+.chip{font:500 12px/1 var(--f-num);padding:8px 11px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--dim)}
+.chip.on{background:var(--pos);border-color:var(--pos);color:var(--bg)}
+.chip.tgl.on{background:var(--card2);color:var(--tx);border-color:var(--rule2)}
+.dts{display:none;gap:6px;align-items:center}
+.dts.show{display:flex}
+.dts input{padding:7px 8px;font-size:12px}
 
-h2{font:650 17px/1.2 Fraunces,serif;margin:26px 0 4px}
-.sub{font-size:12px;color:var(--cream-dim);margin-bottom:12px}
+h2{font:650 16px/1.2 var(--f-disp);margin:22px 0 4px}
+.sub{font-size:12px;color:var(--dim);margin-bottom:10px}
 
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{background:var(--navy2);border:1px solid var(--rule);border-radius:10px;padding:12px 12px 10px}
-.card .k{font:600 10px/1.2 Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-dim)}
-.card .v{font:600 24px/1.1 "JetBrains Mono",monospace;margin-top:6px;display:flex;align-items:baseline;gap:6px}
-.card .v small{font:400 11px/1 "JetBrains Mono",monospace;color:var(--cream-dim)}
-.card .cmp{font:400 11px/1.5 "JetBrains Mono",monospace;color:var(--cream-dim);margin-top:4px}
-.v.ok{color:var(--teal)} .v.watch{color:var(--gold)} .v.red{color:var(--red)}
+@media (min-width:640px){.cards{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px;position:relative}
+.card.wide{grid-column:1/-1}
+.card .k{font:600 10px/1.3 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--dim);padding-right:60px}
+.card .v{font:600 23px/1.15 var(--f-num);margin-top:6px;word-break:break-word}
+.v.ok{color:var(--pos)} .v.watch{color:var(--warn)} .v.red{color:var(--neg)}
+.dl{font:600 11px/1 var(--f-num);margin-left:4px}
+.dl.ok{color:var(--pos)} .dl.red{color:var(--neg)} .dl.nt{color:var(--mut)}
+.cmp{font:400 11px/1.5 var(--f-num);color:var(--dim);margin-top:4px}
+.gauge{position:relative;height:5px;border-radius:3px;margin-top:9px;background:linear-gradient(to right,var(--neg) 0 33%,var(--warn2) 33% 66%,var(--pos2) 66% 100%)}
+.gauge.inv{background:linear-gradient(to right,var(--pos2) 0 33%,var(--warn2) 33% 66%,var(--neg) 66% 100%)}
+.gauge i{position:absolute;top:-3.5px;width:3px;height:12px;background:var(--tx);border-radius:2px;transform:translateX(-50%)}
+.glbl{display:flex;justify-content:space-between;font:400 9.5px/1 var(--f-num);color:var(--mut);margin-top:5px}
+.chart{margin-top:8px;display:block;width:100%}
+.tbl-mini{width:100%;font:400 11px/1.6 var(--f-num);margin-top:8px}
+.tbl-mini td{padding:2px 0;border-bottom:1px solid var(--rule)}
+.tbl-mini td:last-child{text-align:right}
+.tbl-mini tr:last-child td{border-bottom:none}
 
-/* assinatura: medidor de régua — barra com faixas e marcador de onde o valor caiu */
-.gauge{position:relative;height:5px;border-radius:3px;margin-top:9px;overflow:visible;
-  background:linear-gradient(to right,var(--red) 0 33%,var(--gold) 33% 66%,var(--teal) 66% 100%)}
-.gauge.inv{background:linear-gradient(to right,var(--teal) 0 33%,var(--gold) 33% 66%,var(--red) 66% 100%)}
-.gauge i{position:absolute;top:-3.5px;width:3px;height:12px;background:var(--cream);border-radius:2px;transform:translateX(-50%)}
-.gauge-lbl{display:flex;justify-content:space-between;font:400 9.5px/1 "JetBrains Mono",monospace;color:var(--cream-dim);margin-top:5px}
+.ctools{position:absolute;top:8px;right:8px;display:none;gap:2px}
+body.editing .ctools{display:flex}
+.ct{width:26px;height:24px;border-radius:6px;font:600 12px/1 var(--f-num);color:var(--mut);display:flex;align-items:center;justify-content:center}
+.ct.on{background:var(--card2);color:var(--pos)}
+.ct:hover{background:var(--card2)}
 
-.spark{margin-top:8px;display:block}
-.spark path{fill:none;stroke:var(--teal);stroke-width:1.5}
-.spark.gold path{stroke:var(--gold)}
-.dl{font:600 11px/1 "JetBrains Mono",monospace;margin-left:2px}
-.dl.ok{color:var(--teal)} .dl.red{color:var(--red)}
-.loja{display:grid;grid-template-columns:1fr;gap:10px;margin-top:2px}
-@media (min-width:560px){ .loja{grid-template-columns:1.1fr 1fr} }
-.panel{background:var(--navy2);border:1px solid var(--rule);border-radius:10px;padding:14px}
-.panel h3{font:650 13px/1.2 Fraunces,serif;margin-bottom:10px}
-.brk{width:100%;min-width:0;font:400 12px/1.7 "JetBrains Mono",monospace}
-.brk td{padding:2px 0;border:none;text-align:right;white-space:nowrap}
-.brk td:first-child{text-align:left;color:var(--cream-dim);font-family:Inter;font-size:12px}
-.brk tr.tot td{border-top:1px solid var(--rule);padding-top:6px;font-weight:600}
-.vbar{margin:7px 0}
-.vbar .vl{display:flex;justify-content:space-between;font:400 11px/1.4 Inter;color:var(--cream-dim);margin-bottom:3px}
-.vbar .vl b{font:600 11px/1.4 "JetBrains Mono",monospace;color:var(--cream)}
-.vbar .tr{height:5px;background:var(--navy3);border-radius:3px}
-.vbar .fl{height:5px;background:var(--teal);border-radius:3px}
-.donutrow{display:flex;align-items:center;gap:14px}
-.leg{font:400 12px/1.9 Inter;color:var(--cream-dim)}
-.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+.libwrap{display:none;background:var(--card);border:1px solid var(--rule2);border-radius:12px;padding:14px;margin:0 0 16px}
+body.editing .libwrap{display:block}
+.libwrap h3{font:650 13px/1.2 var(--f-disp);margin-bottom:10px}
+.lib{display:flex;flex-wrap:wrap;gap:6px}
+.lchip{font:500 12px/1 var(--f-num);padding:7px 10px;border:1px solid var(--rule);border-radius:14px;color:var(--mut)}
+.lchip.on{border-color:var(--pos);color:var(--pos)}
+.fx{margin-top:14px;border-top:1px dashed var(--rule);padding-top:12px}
+.fx .row{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.fx input[type=text]{flex:1;min-width:140px}
+.fchips{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.fc{font:500 10.5px/1 var(--f-num);padding:5px 8px;border:1px solid var(--rule);border-radius:10px;color:var(--dim)}
+.fc:hover{border-color:var(--pos);color:var(--pos)}
+.fmsg{font-size:12px;margin-top:6px}
+.fmsg.ok{color:var(--pos)} .fmsg.err{color:var(--neg)}
+.presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;border-top:1px dashed var(--rule);padding-top:12px}
+.pbtn{font:500 12px/1 var(--f-num);padding:8px 11px;border:1px solid var(--rule);border-radius:8px;background:var(--card2);color:var(--tx)}
+textarea.io{width:100%;height:64px;margin-top:8px;font:400 11px/1.4 var(--f-num);color:var(--tx);background:var(--card2);border:1px solid var(--rule);border-radius:8px;padding:8px;display:none}
+textarea.io.show{display:block}
 
-.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:10px}
-table{border-collapse:collapse;width:100%;min-width:680px;font:400 11.5px/1.4 "JetBrains Mono",monospace}
-th{font:600 9.5px/1.3 Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);
-  text-align:right;padding:9px 8px;border-bottom:1px solid var(--rule);background:var(--navy2);position:sticky;top:0}
-th:first-child,td:first-child{text-align:left;padding-left:12px}
-td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
-tr:last-child td{border-bottom:none}
-td.ok{color:var(--teal)} td.watch{color:var(--gold)} td.red{color:var(--red)}
-tbody tr:nth-child(odd){background:rgba(255,255,255,.02)}
-
-.setup{background:var(--navy2);border:1px solid var(--rule);border-radius:12px;padding:20px;margin-top:26px}
-.setup h2{margin-top:0}
-.setup p{font-size:13px;color:var(--cream-dim);margin:8px 0 14px}
-.setup label{display:block;font:600 11px/1 Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);margin:12px 0 5px}
-.setup input{width:100%;padding:11px 12px;font:400 14px/1 "JetBrains Mono",monospace;color:var(--cream);
-  background:var(--navy);border:1px solid var(--rule);border-radius:8px}
-.setup input:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
-.setup button{margin-top:16px;width:100%;padding:12px;font:600 14px/1 Inter;color:var(--navy);
-  background:var(--teal);border:none;border-radius:8px;cursor:pointer}
-.err{color:var(--red);font-size:12.5px;margin-top:10px;display:none}
-
-.foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--rule);
-  font:400 10.5px/1.6 "JetBrains Mono",monospace;color:var(--cream-dim)}
-@media (min-width:560px){ .cards{grid-template-columns:repeat(3,1fr)} h1{font-size:30px} }
-@media (prefers-reduced-motion:no-preference){ .tab{transition:background .15s,color .15s} }
+.setup{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px;margin-top:26px;display:none}
+.setup label{display:block;font:600 11px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:12px 0 5px}
+.setup input{width:100%}
+.setup button.go{margin-top:16px;width:100%;padding:12px;font:600 14px/1 var(--f-ui);color:var(--bg);background:var(--pos);border-radius:8px}
+.err{color:var(--neg);font-size:12.5px;margin-top:10px;display:none}
+.foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--rule);font:400 10.5px/1.6 var(--f-num);color:var(--mut)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="eyebrow">Grupo Shrigma · Tráfego</div>
-    <h1>Painel de aquisição</h1>
+    <div>
+      <div class="eyebrow">Grupo Shrigma · Tráfego</div>
+      <h1>Painel de aquisição</h1>
+    </div>
+    <div class="hbtns">
+      <button class="hbtn" id="btnTema" title="alternar tema">◐ tema</button>
+      <button class="hbtn" id="btnEdit">✎ editar</button>
+    </div>
     <div class="updated" id="updated">carregando…</div>
   </header>
 
   <div class="tabs" role="tablist" id="tabs"></div>
-  <p class="note"><b>Marcas nunca somadas.</b> Gasto sempre com imposto (×1,1215). Fonte da verdade de cliente novo: bulk export mensal.</p>
+  <p class="note"><b>Marcas nunca somadas.</b> Gasto sempre com imposto (×1,1215).</p>
+
+  <div class="bar" id="periodbar">
+    <button class="chip" data-p="7">7d</button>
+    <button class="chip on" data-p="30">30d</button>
+    <button class="chip" data-p="90">90d</button>
+    <button class="chip" data-p="custom">intervalo…</button>
+    <span class="dts" id="dts">
+      <input type="date" id="d1"> <span style="color:var(--mut)">→</span> <input type="date" id="d2">
+      <button class="chip" id="dgo">ok</button>
+    </span>
+    <button class="chip tgl on" id="btnCmp" style="margin-left:auto">vs. anterior: on</button>
+  </div>
+
+  <div class="libwrap" id="libwrap">
+    <h3>Biblioteca de métricas — clica pra ligar/desligar</h3>
+    <div class="lib" id="lib"></div>
+    <div class="fx">
+      <h3>Nova métrica (fórmula com os campos base)</h3>
+      <div class="row">
+        <input type="text" id="fxNome" placeholder="nome (ex.: custo por carrinho c/ imposto)">
+        <select id="fxFmt"><option value="num">número</option><option value="brl">R$</option><option value="pct">%</option><option value="int">inteiro</option></select>
+      </div>
+      <div class="row"><input type="text" id="fxForm" placeholder="ex.: gasto_imposto / carrinhos"></div>
+      <div class="fchips" id="fchips"></div>
+      <div class="row"><button class="pbtn" id="fxAdd">+ criar métrica</button><button class="pbtn" id="fxTest">testar</button></div>
+      <div class="fmsg" id="fxMsg"></div>
+    </div>
+    <div class="presets">
+      <span style="font:600 11px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)">Predefinições:</span>
+      <span id="plist"></span>
+      <input type="text" id="pNome" placeholder="nome" style="width:110px">
+      <button class="pbtn" id="pSave">salvar</button>
+      <button class="pbtn" id="pDef">tornar padrão</button>
+      <button class="pbtn" id="pExp">exportar</button>
+      <button class="pbtn" id="pImp">importar</button>
+      <button class="pbtn" id="pDel" style="color:var(--neg)">excluir</button>
+    </div>
+    <textarea class="io" id="pIO" placeholder="código da predefinição"></textarea>
+  </div>
 
   <main id="main"></main>
 
-  <div class="setup" id="setup" style="display:none">
-    <h2>Conectar aos dados</h2>
-    <p>Este painel não guarda nenhum número — ele lê o <code>data/latest.json</code> do repositório privado usando um token só de leitura, salvo apenas neste aparelho.</p>
+  <div class="setup" id="setup">
+    <h2 style="margin-top:0">Conectar aos dados</h2>
+    <p style="font-size:13px;color:var(--dim);margin:8px 0 4px">O painel lê history.json e latest.json do repositório privado com um token só de leitura, salvo neste aparelho.</p>
     <label for="repo">Repositório (dono/nome)</label>
-    <input id="repo" placeholder="mateus/shrigma-trafego" autocomplete="off">
+    <input id="repo" placeholder="MateusTuon/shrigma-trafego" autocomplete="off">
     <label for="pat">Fine-grained PAT (Contents: read-only)</label>
     <input id="pat" type="password" placeholder="github_pat_…" autocomplete="off">
-    <button id="connect">Conectar</button>
-    <div class="err" id="err"></div>
+    <button class="go" id="connect">Conectar</button>
+    <div class="err" id="errbox"></div>
   </div>
 
-  <div class="foot">Régua aMER ≥3,0 forte · 2,6–3,0 atenção · &lt;2,6 vermelho — MER líq. ≥3,9 · 3,4–3,9 · &lt;3,4 — Freq 15d &lt;4,0 · Barra do vencedor ROAS ≥4,0</div>
+  <div class="foot" id="foot">Réguas: aMER ≥3,0 · MER líq ≥3,9 · Freq 15d &lt;4,0 · Barra do vencedor ROAS ≥4,0 — predefinição ativa: <span id="pAtiva">—</span></div>
 </div>
 
 <script>
 "use strict";
-const $ = s => document.querySelector(s);
-const fmtR = v => v==null ? "–" : "R$ " + v.toLocaleString("pt-BR",{maximumFractionDigits:0});
-const fmtN = (v,d=2) => v==null ? "–" : v.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
-const fmtI = v => v==null ? "–" : v.toLocaleString("pt-BR");
+/* =================== estado =================== */
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const LS={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+let HIST=null, LATEST=null, RG=null, brand=null, brands=[];
+let periodo={tipo:"30"}, comparar=true, editing=false;
 
-let DATA=null, brandIds=[], active=null;
+const CAMPOS=["gasto","gasto_imposto","impressoes","cliques","carrinhos","compras_meta","receita_meta","pedidos","receita_bruta","refunds","pagamentos_liquidos","nnc","receita_novos","vendas_brutas","descontos","frete_cobrado","sessoes"];
 
-/* ---- régua: classifica e posiciona o marcador do medidor ---- */
-function cls(val, strong, watch, invert=false){
-  if(val==null) return "";
-  if(!invert) return val>=strong?"ok":val>=watch?"watch":"red";
-  return val<watch?"ok":val<strong?"watch":"red";
-}
-function gaugePos(val, strong, watch, invert=false){
-  if(val==null) return 0;
-  const lo=invert?0:watch*0.6, hi=invert?strong*1.5:strong*1.4;
-  const p=Math.min(1,Math.max(0,(val-lo)/(hi-lo)));
-  return (p*100).toFixed(1);
-}
-function spark(series, gold=false){
-  const v=series.filter(x=>x!=null); if(v.length<2) return "";
-  const min=Math.min(...v), max=Math.max(...v), rng=(max-min)||1;
-  const pts=series.map((x,i)=>x==null?null:[(i/(series.length-1))*100,26-((x-min)/rng)*22]);
-  let d="",pen=false;
-  for(const p of pts){ if(!p){pen=false;continue} d+=(pen?" L":" M")+p[0].toFixed(1)+" "+p[1].toFixed(1); pen=true; }
-  return `<svg class="spark${gold?" gold":""}" viewBox="0 0 100 30" width="100%" height="30" aria-hidden="true"><path d="${d}"/></svg>`;
-}
+/* métricas nativas — tudo é fórmula sobre os campos base */
+const NATIVAS=[
+ {id:"amer",nome:"aMER",f:"receita_novos / gasto_imposto",fmt:"num",regua:"amer",viz:"kpi"},
+ {id:"mer_liq",nome:"MER líquido",f:"pagamentos_liquidos / gasto_imposto",fmt:"num",regua:"mer_liq",viz:"kpi"},
+ {id:"cac",nome:"CAC real",f:"gasto_imposto / nnc",fmt:"brl",inv:true,viz:"line"},
+ {id:"nnc",nome:"NNC",f:"nnc",fmt:"int",viz:"kpi"},
+ {id:"receita_novos",nome:"Receita de novos",f:"receita_novos",fmt:"brl",viz:"bar"},
+ {id:"gasto_imposto",nome:"Gasto c/ imposto",f:"gasto_imposto",fmt:"brl",inv:true,viz:"area"},
+ {id:"roas",nome:"ROAS plataforma",f:"receita_meta / gasto",fmt:"num",viz:"kpi"},
+ {id:"aov",nome:"AOV",f:"receita_bruta / pedidos",fmt:"brl",viz:"line"},
+ {id:"pedidos",nome:"Pedidos",f:"pedidos",fmt:"int",viz:"bar"},
+ {id:"pagliq",nome:"Pag. líquidos",f:"pagamentos_liquidos",fmt:"brl",viz:"kpi"},
+ {id:"vliq",nome:"Vendas líquidas",f:"vendas_brutas - descontos - refunds",fmt:"brl",viz:"kpi",off:true},
+ {id:"descontos",nome:"Descontos",f:"descontos",fmt:"brl",inv:true,viz:"kpi",off:true},
+ {id:"cpa",nome:"CPA plataforma",f:"gasto / compras_meta",fmt:"brl",inv:true,viz:"kpi",off:true},
+ {id:"cpm",nome:"CPM",f:"gasto * 1000 / impressoes",fmt:"num",inv:true,viz:"line",off:true},
+ {id:"ctr",nome:"CTR %",f:"cliques * 100 / impressoes",fmt:"pct",viz:"line",off:true},
+ {id:"cpc",nome:"CPC",f:"gasto / cliques",fmt:"num",inv:true,viz:"kpi",off:true},
+ {id:"rscarr",nome:"R$/carrinho",f:"gasto / carrinhos",fmt:"num",inv:true,viz:"line",off:true},
+ {id:"carr",nome:"Carrinhos",f:"carrinhos",fmt:"int",viz:"bar",off:true},
+ {id:"sessoes",nome:"Sessões",f:"sessoes",fmt:"int",viz:"area",off:true},
+ {id:"cvr",nome:"Conversão %",f:"pedidos * 100 / sessoes",fmt:"pct",viz:"line",off:true},
+ {id:"rpv",nome:"RPV",f:"receita_bruta / sessoes",fmt:"num",viz:"line",off:true},
+];
 
-function delta(cur, prev, invert=false){
-  if(cur==null||prev==null||!prev) return "";
-  const p=((cur-prev)/Math.abs(prev))*100;
-  if(Math.abs(p)<0.05) return `<span class="dl">— 0%</span>`;
-  const up=p>0, good=invert? !up : up;
-  return `<span class="dl ${good?"ok":"red"}">${up?"▲":"▼"} ${Math.abs(p).toFixed(p<10?1:0)}%</span>`;
+/* =================== predefinições =================== */
+function novaConfig(){return{tema:"studio",periodo:{tipo:"30"},comparar:true,
+ metricas:NATIVAS.map(m=>({id:m.id,on:!m.off,viz:m.viz})),custom:[]}}
+let PRESETS=LS.get("shr_presets",{}), pdef=LS.get("shr_pdef",null), pAtiva=null, CFG=null;
+function carregarPreset(nome){
+  pAtiva=nome; CFG=PRESETS[nome]?JSON.parse(JSON.stringify(PRESETS[nome])):novaConfig();
+  if(!CFG.metricas)CFG.metricas=novaConfig().metricas;
+  NATIVAS.forEach(m=>{if(!CFG.metricas.find(x=>x.id===m.id))CFG.metricas.push({id:m.id,on:!m.off,viz:m.viz})});
+  periodo=CFG.periodo||{tipo:"30"}; comparar=CFG.comparar!==false;
+  document.documentElement.dataset.tema=CFG.tema||"studio";
+  $("#pAtiva").textContent=nome||"(sem nome)";
 }
-function donut(a, b){
-  const tot=a+b; if(!tot) return "";
-  const pa=a/tot, C=2*Math.PI*30;
-  return `<svg viewBox="0 0 80 80" width="86" height="86" aria-hidden="true">
-    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--navy3)" stroke-width="11"/>
-    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--teal)" stroke-width="11"
-      stroke-dasharray="${(pa*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 40 40)" stroke-linecap="butt"/>
-    <text x="40" y="38" text-anchor="middle" fill="var(--cream)" font-family="JetBrains Mono" font-size="13" font-weight="600">${fmtI(tot)}</text>
-    <text x="40" y="52" text-anchor="middle" fill="var(--cream-dim)" font-family="Inter" font-size="8">pedidos 7d</text></svg>`;
-}
-function card(k, valTxt, valCls, gaugeHtml, cmp, sparkHtml=""){
-  return `<div class="card"><div class="k">${k}</div>
-    <div class="v ${valCls||""}">${valTxt}</div>${gaugeHtml||""}${cmp?`<div class="cmp">${cmp}</div>`:""}${sparkHtml}</div>`;
-}
+function salvarPreset(nome){CFG.periodo=periodo;CFG.comparar=comparar;
+ CFG.tema=document.documentElement.dataset.tema;
+ PRESETS[nome]=JSON.parse(JSON.stringify(CFG));LS.set("shr_presets",PRESETS);pAtiva=nome;
+ $("#pAtiva").textContent=nome;renderPresets()}
 
+/* =================== fórmulas =================== */
+function tokenize(s){const re=/\s*([A-Za-z_][A-Za-z0-9_]*|\d+(?:\.\d+)?|[()+\-*\/])\s*/g;
+ let t=[],m,i=0;while((m=re.exec(s))){if(m.index!==i)return null;t.push(m[1]);i=re.lastIndex}
+ return i===s.length?t:null}
+function compilar(src){
+  const t=tokenize(src); if(!t||!t.length)return{err:"fórmula vazia ou caractere inválido"};
+  const ids=[...new Set(t.filter(x=>/^[A-Za-z_]/.test(x)))];
+  const ruins=ids.filter(x=>!CAMPOS.includes(x));
+  if(ruins.length)return{err:"campo desconhecido: "+ruins.join(", ")};
+  let p=0;
+  function expr(){let v=termo();while(t[p]==="+"||t[p]==="-"){const op=t[p++],r=termo(),L=v;v=ctx=>{const a=L(ctx),b=r(ctx);return a==null||b==null?null:(op==="+"?a+b:a-b)}}return v}
+  function termo(){let v=fator();while(t[p]==="*"||t[p]==="/"){const op=t[p++],r=fator(),L=v;v=ctx=>{const a=L(ctx),b=r(ctx);if(a==null||b==null)return null;if(op==="/")return b?a/b:null;return a*b}}return v}
+  function fator(){const x=t[p++];
+    if(x==="("){const v=expr();if(t[p++]!==")")throw 0;return v}
+    if(x==="-"){const v=fator();return ctx=>{const a=v(ctx);return a==null?null:-a}}
+    if(/^\d/.test(x)){const n=parseFloat(x);return()=>n}
+    if(CAMPOS.includes(x))return ctx=>ctx[x];
+    throw 0}
+  try{const fn=expr();if(p!==t.length)return{err:"sintaxe inválida"};return{fn,ids}}
+  catch(e){return{err:"sintaxe inválida"}}
+}
+const COMPILED={};
+function metricaDef(id){return NATIVAS.find(m=>m.id===id)||(CFG.custom||[]).find(m=>m.id===id)}
+function fnDe(id){if(!COMPILED[id]){const d=metricaDef(id);COMPILED[id]=d?compilar(d.f):{err:"?"}}return COMPILED[id]}
+
+/* =================== dados =================== */
+function rowsBrand(){return (HIST&&HIST[brand])?HIST[brand]:[]}
+function range(){
+  const rows=rowsBrand(); if(!rows.length)return{cur:[],prev:[]};
+  const last=rows[rows.length-1].date;
+  let de,ate=last;
+  if(periodo.tipo==="custom"&&periodo.de&&periodo.ate){de=periodo.de;ate=periodo.ate}
+  else{const n=parseInt(periodo.tipo||"30",10);const d=new Date(ate+"T12:00:00");d.setDate(d.getDate()-(n-1));de=d.toISOString().slice(0,10)}
+  const cur=rows.filter(r=>r.date>=de&&r.date<=ate);
+  const dias=cur.length;
+  const d0=new Date(de+"T12:00:00");d0.setDate(d0.getDate()-1);const pAte=d0.toISOString().slice(0,10);
+  const d1=new Date(pAte+"T12:00:00");d1.setDate(d1.getDate()-(dias-1));const pDe=d1.toISOString().slice(0,10);
+  const prev=rows.filter(r=>r.date>=pDe&&r.date<=pAte);
+  return{cur,prev,de,ate}
+}
+function soma(rows){const c={};CAMPOS.forEach(k=>c[k]=rows.reduce((a,r)=>a+(r[k]||0),0));return c}
+function valorAgg(id,rows){const c=fnDe(id);if(c.err||!rows.length)return null;
+ const v=c.fn(soma(rows));return v==null||!isFinite(v)?null:v}
+function serie(id,rows){const c=fnDe(id);if(c.err)return[];
+ return rows.map(r=>{const ctx={};CAMPOS.forEach(k=>ctx[k]=r[k]||0);const v=c.fn(ctx);return v==null||!isFinite(v)?null:v})}
+
+/* =================== formatação =================== */
+const fmtI=v=>v==null?"–":Math.round(v).toLocaleString("pt-BR");
+function fmt(v,f){if(v==null)return"–";
+ if(f==="brl")return"R$ "+v.toLocaleString("pt-BR",{maximumFractionDigits:v>=1000?0:2});
+ if(f==="int")return fmtI(v);
+ if(f==="pct")return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
+ return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function delta(cur,prev,inv){if(!comparar||cur==null||prev==null||!prev)return"";
+ const p=((cur-prev)/Math.abs(prev))*100;if(Math.abs(p)<0.05)return`<span class="dl nt">—</span>`;
+ const up=p>0,good=inv?!up:up;
+ return`<span class="dl ${good?"ok":"red"}">${up?"▲":"▼"} ${Math.abs(p).toFixed(Math.abs(p)<10?1:0)}%</span>`}
+function cls(v,rg,inv){if(v==null||!rg)return"";
+ if(!inv)return v>=rg.strong?"ok":v>=rg.watch?"watch":"red";
+ return v<rg.watch?"ok":v<rg.strong?"watch":"red"}
+
+/* =================== gráficos SVG =================== */
+function svgLine(cur,prev,area){
+  const all=cur.concat(comparar?prev:[]).filter(v=>v!=null);
+  if(all.length<2)return"";
+  const min=Math.min(...all),max=Math.max(...all),rng=(max-min)||1;
+  const W=300,H=54,PX=v=>H-6-((v-min)/rng)*(H-14);
+  function path(s){let d="",pen=false;
+    s.forEach((v,i)=>{if(v==null){pen=false;return}
+      const x=(i/((s.length-1)||1))*W,y=PX(v);d+=(pen?" L":" M")+x.toFixed(1)+" "+y.toFixed(1);pen=true});
+    return d}
+  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" height="54" aria-hidden="true">`;
+  if(comparar&&prev.length>1)out+=`<path d="${path(prev)}" fill="none" stroke="var(--rule2)" stroke-width="1" stroke-dasharray="3 3"/>`;
+  if(area){out+=`<path d="${path(cur)} L ${W} ${H} L 0 ${H} Z" fill="var(--pos2)" opacity="0.13" stroke="none"/>`}
+  out+=`<path d="${path(cur)}" fill="none" stroke="var(--pos2)" stroke-width="1.6"/></svg>`;
+  return out}
+function svgBar(cur){
+  const vals=cur.filter(v=>v!=null); if(!vals.length)return"";
+  const max=Math.max(...vals)||1,W=300,H=54,n=cur.length,bw=Math.max(2,(W/n)-2);
+  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" height="54" aria-hidden="true">`;
+  cur.forEach((v,i)=>{if(v==null)return;const h=Math.max(1,(v/max)*(H-8));
+    out+=`<rect x="${(i*(W/n)).toFixed(1)}" y="${(H-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="var(--pos2)"/>`});
+  return out+"</svg>"}
+
+/* =================== render =================== */
 function render(){
-  const b=DATA.brands[active], rg=DATA.reguas;
-  if(!b){ $("#main").innerHTML="<p class='note'>Marca ainda sem dados — configure o account_id no config/brands.json.</p>"; return; }
-  const a7=b.agg_7d||{}, ap=b.agg_7d_prev||{}, a30=b.agg_30d||{}, s=b.series_30d||{};
-  const freq=b.freq_15d;
+  if(!HIST||!brand)return;
+  const {cur,prev,de,ate}=range();
+  const b=(LATEST&&LATEST.brands&&LATEST.brands[brand])||{};
+  $("#main").innerHTML="";
+  let h=`<h2>Métricas · ${cur.length} dia${cur.length===1?"":"s"}</h2>
+  <div class="sub">${de||"—"} → ${ate||"—"}${comparar?" · comparando com os "+cur.length+" dias anteriores":""}</div><div class="cards">`;
 
-  let h=`<h2>Decisão · 7 dias</h2><div class="sub">janela ${DATA.janela.since} → ${DATA.janela.until} · comparativo 30d entre parênteses</div><div class="cards">`;
-
-  h+=card("aMER", fmtN(a7.amer)+delta(a7.amer,ap.amer), cls(a7.amer,rg.amer.strong,rg.amer.watch),
-    `<div class="gauge"><i style="left:${gaugePos(a7.amer,rg.amer.strong,rg.amer.watch)}%"></i></div>
-     <div class="gauge-lbl"><span>${fmtN(rg.amer.watch,1)}</span><span>${fmtN(rg.amer.strong,1)}</span></div>`,
-    `30d: ${fmtN(a30.amer)}`, spark(s.amer||[]));
-
-  h+=card("MER líquido", fmtN(a7.mer_liq)+delta(a7.mer_liq,ap.mer_liq), cls(a7.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch),
-    `<div class="gauge"><i style="left:${gaugePos(a7.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch)}%"></i></div>
-     <div class="gauge-lbl"><span>${fmtN(rg.mer_liq.watch,1)}</span><span>${fmtN(rg.mer_liq.strong,1)}</span></div>`,
-    `30d: ${fmtN(a30.mer_liq)}`);
-
-  h+=card("CAC real", fmtR(a7.cac)+delta(a7.cac,ap.cac,true), "", "", `30d: ${fmtR(a30.cac)} · AOV novos ${fmtR(a7.aov_novos)}`, spark(s.cac||[],true));
-  h+=card("NNC", fmtI(a7.nnc)+delta(a7.nnc,ap.nnc), "", "", `30d: ${fmtI(a30.nnc)} clientes novos`);
-  h+=card("Receita de novos", fmtR(a7.receita_novos)+delta(a7.receita_novos,ap.receita_novos), "", "", `30d: ${fmtR(a30.receita_novos)}`);
-  h+=card("MC de aquisição*", fmtR(a7.mc_aquisicao_estimada),
-    (a7.mc_aquisicao_estimada??0)>=0?"ok":"red", "", `30d: ${fmtR(a30.mc_aquisicao_estimada)} · *estimada (config)`);
-
-  h+=card("Freq 15d (cold)", fmtN(freq), cls(freq,rg.freq_guardrail_15d,rg.freq_guardrail_15d*0.85,true),
-    `<div class="gauge inv"><i style="left:${gaugePos(freq,rg.freq_guardrail_15d,rg.freq_guardrail_15d*0.7,true)}%"></i></div>
-     <div class="gauge-lbl"><span>0</span><span>${fmtN(rg.freq_guardrail_15d,1)}</span></div>`,
-    "guardrail: reach real da janela");
-
-  h+=card("ROAS plataforma", fmtN(a7.roas_plataforma),
-    cls(a7.roas_plataforma,rg.roas_barra_vencedor,rg.roas_barra_vencedor*0.75), "",
-    `barra do vencedor: ${fmtN(rg.roas_barra_vencedor,1)}`);
-  h+=card("Gasto c/ imposto", fmtR(a7.gasto_imposto)+delta(a7.gasto_imposto,ap.gasto_imposto), "", "", `30d: ${fmtR(a30.gasto_imposto)}`, spark(s.gasto_imposto||[],true));
-  h+="</div>";
-
-  /* loja: funil/cvr, breakdown, novo x recorrente, variantes */
-  const rec7=(a7.pedidos||0)-(a7.nnc||0);
-  h+=`<h2>Loja · 7 dias</h2><div class="sub">vs. 7 dias anteriores</div><div class="cards">`;
-  if(a7.sessoes){
-    h+=card("Sessões", fmtI(a7.sessoes)+delta(a7.sessoes,ap.sessoes), "", "", `30d: ${fmtI(a30.sessoes)}`);
-    h+=card("Conversão", fmtN(a7.cvr)+"%"+delta(a7.cvr,ap.cvr), "", "", `pedidos ÷ sessões`);
-    h+=card("RPV", fmtN(a7.rpv)+delta(a7.rpv,ap.rpv), "", "", `receita ÷ sessões`);
-  }
-  h+=card("AOV", fmtN(a7.aov)+delta(a7.aov,ap.aov), "", "", `30d: ${fmtN(a30.aov)}`, spark(s.aov||[]));
-  h+=card("Pedidos", fmtI(a7.pedidos)+delta(a7.pedidos,ap.pedidos), "", "", `30d: ${fmtI(a30.pedidos)}`);
-  h+=card("Pag. líquidos", fmtR(a7.pagamentos_liquidos)+delta(a7.pagamentos_liquidos,ap.pagamentos_liquidos), "", "", `30d: ${fmtR(a30.pagamentos_liquidos)}`);
-  h+=`</div>`;
-  h+=`<div class="loja" style="margin-top:10px">`;
-  h+=`<div class="panel"><h3>Detalhamento de vendas · 7d</h3><table class="brk">
-    <tr><td>Vendas brutas</td><td>${fmtR(a7.vendas_brutas)} ${delta(a7.vendas_brutas,ap.vendas_brutas)}</td></tr>
-    <tr><td>Descontos</td><td>−${fmtR(a7.descontos)} ${delta(a7.descontos,ap.descontos,true)}</td></tr>
-    <tr><td>Estornos</td><td>−${fmtR(a7.estornos)} ${delta(a7.estornos,ap.estornos,true)}</td></tr>
-    <tr class="tot"><td>Vendas líquidas</td><td>${fmtR(a7.vendas_liquidas)} ${delta(a7.vendas_liquidas,ap.vendas_liquidas)}</td></tr>
-    <tr><td>Frete cobrado</td><td>${fmtR(a7.frete_cobrado)}</td></tr></table></div>`;
-  h+=`<div class="panel"><h3>Novo × recorrente · 7d</h3><div class="donutrow">${donut(a7.nnc||0, rec7)}
-    <div class="leg"><div><i style="background:var(--teal)"></i>Novos <b style="color:var(--cream)">${fmtI(a7.nnc)}</b> ${delta(a7.nnc,ap.nnc)}</div>
-    <div><i style="background:var(--navy3)"></i>Recorrentes <b style="color:var(--cream)">${fmtI(rec7)}</b> ${delta(rec7,(ap.pedidos||0)-(ap.nnc||0))}</div></div></div></div>`;
-  const tv=(a30.top_variantes||[]);
-  if(tv.length){
-    const mx=tv[0][1]||1;
-    h+=`<div class="panel" style="grid-column:1/-1"><h3>Top produtos por unidades · 30d</h3>`;
-    for(const [nome,un] of tv){
-      h+=`<div class="vbar"><div class="vl"><span>${nome}</span><b>${fmtI(un)}</b></div>
-      <div class="tr"><div class="fl" style="width:${(un/mx*100).toFixed(1)}%"></div></div></div>`;
+  const vis=CFG.metricas.filter(m=>m.on);
+  vis.forEach((m,ix)=>{
+    const def=metricaDef(m.id); if(!def)return;
+    const vc=valorAgg(m.id,cur), vp=valorAgg(m.id,prev);
+    if(vc==null&&(m.id==="sessoes"||m.id==="cvr"||m.id==="rpv"))return;
+    const rg=def.regua&&RG?RG[def.regua]:null;
+    const wide=m.viz==="line"||m.viz==="bar"||m.viz==="area"||m.viz==="tabela";
+    h+=`<div class="card${wide?" wide":""}" data-id="${m.id}">
+      <div class="ctools">
+        ${["kpi","line","bar","area","tabela"].map(v=>`<button class="ct${m.viz===v?" on":""}" data-viz="${v}" title="${v}">${{kpi:"#",line:"∿",bar:"▮",area:"◪",tabela:"≡"}[v]}</button>`).join("")}
+        <button class="ct" data-mv="-1" title="subir">↑</button>
+        <button class="ct" data-mv="1" title="descer">↓</button>
+        <button class="ct" data-off="1" title="ocultar">✕</button>
+      </div>
+      <div class="k">${def.nome}${def.custom?" ✦":""}</div>
+      <div class="v ${cls(vc,rg,def.inv)}">${fmt(vc,def.fmt)}${delta(vc,vp,def.inv)}</div>`;
+    if(rg){
+      const lo=rg.watch*0.6,hi=rg.strong*1.4,p=vc==null?0:Math.min(1,Math.max(0,(vc-lo)/(hi-lo)));
+      h+=`<div class="gauge"><i style="left:${(p*100).toFixed(1)}%"></i></div>
+      <div class="glbl"><span>${fmt(rg.watch,"num")}</span><span>${fmt(rg.strong,"num")}</span></div>`;
     }
+    if(m.viz==="line"||m.viz==="area")h+=svgLine(serie(m.id,cur),serie(m.id,prev),m.viz==="area");
+    if(m.viz==="bar")h+=svgBar(serie(m.id,cur));
+    if(m.viz==="tabela"){
+      const s=serie(m.id,cur),last=cur.slice(-8),sl=s.slice(-8);
+      h+=`<table class="tbl-mini">${last.map((r,i)=>`<tr><td>${r.date.slice(5)}</td><td>${fmt(sl[i],def.fmt)}</td></tr>`).join("")}</table>`;
+    }
+    if(m.viz==="kpi"&&!rg)h+=`<div class="cmp">período anterior: ${fmt(vp,def.fmt)}</div>`;
     h+=`</div>`;
-  }
-  h+=`</div>`;
+  });
 
-  /* diagnóstico diário */
-  h+=`<h2>Diagnóstico · 14 dias</h2><div class="sub">CPM · CTR · CPC · freq · carrinho · CPA · ROAS · hook/ratio</div>
-  <div class="tbl-wrap"><table><thead><tr>
-  <th>Dia</th><th>Gasto c/imp</th><th>CPM</th><th>CTR%</th><th>CPC</th><th>Freq</th>
-  <th>Carr</th><th>R$/Carr</th><th>Compras</th><th>CPA</th><th>ROAS</th><th>Hook%</th><th>Ratio%</th><th>aMER</th></tr></thead><tbody>`;
-  for(const r of (b.diario_14d||[]).slice().reverse()){
-    h+=`<tr><td>${r.date.slice(5)}</td><td>${fmtR(r.gasto_imposto)}</td><td>${fmtN(r.cpm)}</td>
-    <td>${fmtN(r.ctr)}</td><td>${fmtN(r.cpc)}</td>
-    <td class="${r.freq_dia>DATA.reguas.freq_fadiga_diaria?"red":""}">${fmtN(r.freq_dia)}</td>
-    <td>${fmtI(r.carrinhos)}</td><td>${fmtN(r.custo_carrinho)}</td><td>${fmtI(r.compras_meta)}</td>
-    <td>${fmtN(r.cpa_meta)}</td>
-    <td class="${cls(r.roas_plataforma,rg.roas_barra_vencedor,rg.roas_barra_vencedor*0.75)}">${fmtN(r.roas_plataforma)}</td>
-    <td>${fmtN(r.hook_pct,1)}</td><td>${fmtN(r.ratio_pct,1)}</td>
-    <td class="${cls(r.amer,rg.amer.strong,rg.amer.watch)}">${fmtN(r.amer)}</td></tr>`;
+  /* freq 15d fixa (fora do período — janela própria) */
+  const f=b.freq_15d;
+  if(f!=null&&RG){
+    const g=RG.freq_guardrail_15d,p=Math.min(1,Math.max(0,f/(g*1.5)));
+    h+=`<div class="card"><div class="k">Freq 15d (conta toda)</div>
+    <div class="v ${f<g*0.85?"ok":f<g?"watch":"red"}">${fmt(f,"num")}</div>
+    <div class="gauge inv"><i style="left:${(p*100).toFixed(1)}%"></i></div>
+    <div class="glbl"><span>0</span><span>${fmt(g,"num")}</span></div>
+    <div class="cmp">janela fixa de 15 dias · inclui remarketing</div></div>`;
   }
-  h+="</tbody></table></div>";
-
-  /* semanas seg–dom */
-  h+=`<h2>Semanas · seg → dom</h2><div class="sub">agregado recalculado sobre totais, não média de médias</div>
-  <div class="tbl-wrap"><table><thead><tr>
-  <th>Semana</th><th>Gasto c/imp</th><th>Pag. líquidos</th><th>Receita novos</th><th>NNC</th>
-  <th>CAC</th><th>aMER</th><th>MER líq</th><th>MC aq.*</th></tr></thead><tbody>`;
-  for(const w of (b.semanas||[])){
-    h+=`<tr><td>${w.semana.slice(5,10)} → ${w.semana.slice(18)}</td><td>${fmtR(w.gasto_imposto)}</td>
-    <td>${fmtR(w.pagamentos_liquidos)}</td><td>${fmtR(w.receita_novos)}</td><td>${fmtI(w.nnc)}</td>
-    <td>${fmtR(w.cac)}</td>
-    <td class="${cls(w.amer,rg.amer.strong,rg.amer.watch)}">${fmtN(w.amer)}</td>
-    <td class="${cls(w.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch)}">${fmtN(w.mer_liq)}</td>
-    <td class="${(w.mc_aquisicao_estimada??0)>=0?"ok":"red"}">${fmtR(w.mc_aquisicao_estimada)}</td></tr>`;
-  }
-  h+="</tbody></table></div>";
-
+  h+="</div>";
   $("#main").innerHTML=h;
+
+  /* handlers dos cards (modo edição) */
+  $$(".ct[data-viz]").forEach(btn=>btn.onclick=e=>{
+    const id=e.target.closest(".card").dataset.id;
+    CFG.metricas.find(x=>x.id===id).viz=btn.dataset.viz;render()});
+  $$(".ct[data-mv]").forEach(btn=>btn.onclick=e=>{
+    const id=e.target.closest(".card").dataset.id,dir=parseInt(btn.dataset.mv,10);
+    const arr=CFG.metricas,i=arr.findIndex(x=>x.id===id),j=i+dir;
+    if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];render()});
+  $$(".ct[data-off]").forEach(btn=>btn.onclick=e=>{
+    const id=e.target.closest(".card").dataset.id;
+    CFG.metricas.find(x=>x.id===id).on=false;renderLib();render()});
 }
 
+function renderLib(){
+  $("#lib").innerHTML=CFG.metricas.map(m=>{
+    const d=metricaDef(m.id);return d?`<button class="lchip${m.on?" on":""}" data-id="${m.id}">${m.on?"● ":"○ "}${d.nome}</button>`:""}).join("");
+  $$("#lib .lchip").forEach(c=>c.onclick=()=>{
+    const m=CFG.metricas.find(x=>x.id===c.dataset.id);m.on=!m.on;renderLib();render()});
+  $("#fchips").innerHTML=CAMPOS.map(c=>`<button class="fc" data-c="${c}">${c}</button>`).join("");
+  $$("#fchips .fc").forEach(c=>c.onclick=()=>{
+    const i=$("#fxForm");i.value=(i.value+" "+c.dataset.c+" ").replace(/\s+/g," ");i.focus()});
+}
+function renderPresets(){
+  $("#plist").innerHTML=Object.keys(PRESETS).map(n=>
+    `<button class="chip${n===pAtiva?" on":""}" data-pr="${n}">${n}${n===pdef?" ★":""}</button>`).join("")||
+    `<span style="font-size:12px;color:var(--mut)">nenhuma salva ainda</span>`;
+  $$("#plist .chip").forEach(c=>c.onclick=()=>{carregarPreset(c.dataset.pr);syncUI();renderLib();renderPresets();render()});
+}
+function syncUI(){
+  $$("#periodbar .chip[data-p]").forEach(c=>c.classList.toggle("on",c.dataset.p===periodo.tipo));
+  $("#dts").classList.toggle("show",periodo.tipo==="custom");
+  if(periodo.de)$("#d1").value=periodo.de; if(periodo.ate)$("#d2").value=periodo.ate;
+  $("#btnCmp").textContent="vs. anterior: "+(comparar?"on":"off");
+  $("#btnCmp").classList.toggle("on",comparar);
+}
+
+/* =================== interações globais =================== */
+$("#btnTema").onclick=()=>{const el=document.documentElement;
+ el.dataset.tema=el.dataset.tema==="terminal"?"studio":"terminal";CFG.tema=el.dataset.tema;render()};
+$("#btnEdit").onclick=()=>{editing=!editing;document.body.classList.toggle("editing",editing);
+ $("#btnEdit").classList.toggle("on",editing);$("#btnEdit").textContent=editing?"✓ pronto":"✎ editar";
+ if(editing){renderLib();renderPresets()} };
+$$("#periodbar .chip[data-p]").forEach(c=>c.onclick=()=>{
+  periodo={tipo:c.dataset.p,de:periodo.de,ate:periodo.ate};syncUI();if(c.dataset.p!=="custom")render()});
+$("#dgo").onclick=()=>{if($("#d1").value&&$("#d2").value){periodo={tipo:"custom",de:$("#d1").value,ate:$("#d2").value};render()}};
+$("#btnCmp").onclick=()=>{comparar=!comparar;syncUI();render()};
+
+$("#fxTest").onclick=()=>testarFx(false);
+$("#fxAdd").onclick=()=>testarFx(true);
+function testarFx(add){
+  const nome=$("#fxNome").value.trim(),src=$("#fxForm").value.trim(),fmtv=$("#fxFmt").value,msg=$("#fxMsg");
+  const c=compilar(src);
+  if(c.err){msg.className="fmsg err";msg.textContent="✗ "+c.err;return}
+  const {cur}=range(),v=cur.length?c.fn(soma(cur)):null;
+  msg.className="fmsg ok";msg.textContent="✓ válida · preview no período: "+fmt(v==null||!isFinite(v)?null:v,fmtv);
+  if(!add)return;
+  if(!nome){msg.className="fmsg err";msg.textContent="✗ dá um nome pra métrica";return}
+  const id="cx_"+nome.toLowerCase().replace(/[^a-z0-9]+/g,"_").slice(0,24);
+  CFG.custom=CFG.custom||[];
+  if(!CFG.custom.find(x=>x.id===id)){CFG.custom.push({id,nome,f:src,fmt:fmtv,custom:true,viz:"kpi"});
+   CFG.metricas.push({id,on:true,viz:"kpi"})}
+  delete COMPILED[id];$("#fxNome").value="";$("#fxForm").value="";
+  msg.textContent="✓ criada — já está na biblioteca e na tela";renderLib();render();
+}
+
+$("#pSave").onclick=()=>{const n=$("#pNome").value.trim()||pAtiva||"mateus";salvarPreset(n);$("#pNome").value=""};
+$("#pDef").onclick=()=>{if(!pAtiva){$("#fxMsg").textContent="salva a predefinição primeiro"}else{pdef=pAtiva;LS.set("shr_pdef",pdef);renderPresets()}};
+$("#pDel").onclick=()=>{if(pAtiva&&PRESETS[pAtiva]){delete PRESETS[pAtiva];LS.set("shr_presets",PRESETS);
+ if(pdef===pAtiva){pdef=null;LS.set("shr_pdef",null)}carregarPreset(Object.keys(PRESETS)[0]||null);syncUI();renderLib();renderPresets();render()}};
+$("#pExp").onclick=()=>{CFG.periodo=periodo;CFG.comparar=comparar;CFG.tema=document.documentElement.dataset.tema;
+ const io=$("#pIO");io.classList.add("show");io.value=btoa(unescape(encodeURIComponent(JSON.stringify({nome:pAtiva||"preset",cfg:CFG}))));io.select()};
+$("#pImp").onclick=()=>{const io=$("#pIO");
+ if(!io.classList.contains("show")){io.classList.add("show");io.value="";io.focus();return}
+ try{const o=JSON.parse(decodeURIComponent(escape(atob(io.value.trim()))));
+  PRESETS[o.nome]=o.cfg;LS.set("shr_presets",PRESETS);carregarPreset(o.nome);syncUI();renderLib();renderPresets();render();
+  io.classList.remove("show")}catch(e){$("#fxMsg").className="fmsg err";$("#fxMsg").textContent="✗ código inválido"}};
+
+/* =================== boot / dados =================== */
 function renderTabs(){
-  $("#tabs").innerHTML=brandIds.map(id=>
-    `<button class="tab" role="tab" aria-selected="${id===active}" data-id="${id}">${DATA.brands[id].nome}</button>`).join("");
-  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{active=t.dataset.id;renderTabs();render();});
+  $("#tabs").innerHTML=brands.map(id=>
+    `<button class="tab" role="tab" aria-selected="${id===brand}" data-id="${id}">${(LATEST.brands[id]||{}).nome||id}</button>`).join("");
+  $$(".tab").forEach(t=>t.onclick=()=>{brand=t.dataset.id;renderTabs();render()});
 }
-
-function boot(data){
-  DATA=data; brandIds=Object.keys(data.brands);
-  if(!brandIds.length){ $("#updated").textContent="latest.json sem marcas — rode o ETL."; return; }
-  active=active&&brandIds.includes(active)?active:brandIds[0];
-  $("#updated").textContent="atualizado "+data.gerado_em.replace("T"," ").slice(0,16);
+function boot(hist,latest){
+  HIST=hist;LATEST=latest;RG=latest.reguas||null;
+  brands=Object.keys(latest.brands||{}).filter(b=>hist[b]&&hist[b].length);
+  if(!brands.length){$("#updated").textContent="sem dados — rode o ETL";return}
+  brand=brands.includes(brand)?brand:brands[0];
+  $("#updated").textContent="dados até "+(hist[brand][hist[brand].length-1]||{}).date+" · gerado "+(latest.gerado_em||"").replace("T"," ").slice(0,16);
   $("#setup").style.display="none";
-  renderTabs(); render();
+  carregarPreset(pdef&&PRESETS[pdef]?pdef:(Object.keys(PRESETS)[0]||null));
+  syncUI();renderTabs();render();
 }
-
-async function loadLocal(){
-  try{ const r=await fetch("../data/latest.json",{cache:"no-store"});
-    if(r.ok){ boot(await r.json()); return true; } }catch(e){}
-  return false;
-}
-async function loadGithub(repo,pat){
-  const r=await fetch(`https://api.github.com/repos/${repo}/contents/data/latest.json`,
-    {headers:{Authorization:"Bearer "+pat,Accept:"application/vnd.github.raw+json"},cache:"no-store"});
-  if(!r.ok) throw new Error("GitHub API "+r.status+" — confira repo e token.");
-  boot(await r.json());
-}
-
+async function fetchLocal(p){const r=await fetch(p,{cache:"no-store"});if(!r.ok)throw 0;return r.json()}
+async function fetchGH(repo,pat,path){
+  const r=await fetch(`https://api.github.com/repos/${repo}/contents/${path}`,
+   {headers:{Authorization:"Bearer "+pat,Accept:"application/vnd.github.raw+json"},cache:"no-store"});
+  if(!r.ok)throw new Error("GitHub API "+r.status+" — confira repo e token.");return r.json()}
 (async()=>{
-  if(await loadLocal()) return;
-  const repo=localStorage.getItem("shrigma_repo"), pat=localStorage.getItem("shrigma_pat");
-  if(repo&&pat){ try{ await loadGithub(repo,pat); return; }catch(e){} }
-  $("#setup").style.display="block";
-  $("#updated").textContent="aguardando conexão";
-  if(repo) $("#repo").value=repo;
+  try{boot(await fetchLocal("../data/history.json"),await fetchLocal("../data/latest.json"));return}catch(e){}
+  const repo=localStorage.getItem("shrigma_repo"),pat=localStorage.getItem("shrigma_pat");
+  if(repo&&pat){try{boot(await fetchGH(repo,pat,"data/history.json"),await fetchGH(repo,pat,"data/latest.json"));return}catch(e){}}
+  $("#setup").style.display="block";$("#updated").textContent="aguardando conexão";
+  if(repo)$("#repo").value=repo;
   $("#connect").onclick=async()=>{
-    const rp=$("#repo").value.trim(), pt=$("#pat").value.trim();
-    try{
-      await loadGithub(rp,pt);
-      localStorage.setItem("shrigma_repo",rp); localStorage.setItem("shrigma_pat",pt);
-    }catch(e){ const el=$("#err"); el.style.display="block"; el.textContent=e.message; }
-  };
+    const rp=$("#repo").value.trim(),pt=$("#pat").value.trim();
+    try{const h=await fetchGH(rp,pt,"data/history.json"),l=await fetchGH(rp,pt,"data/latest.json");
+      localStorage.setItem("shrigma_repo",rp);localStorage.setItem("shrigma_pat",pt);boot(h,l)}
+    catch(e){const el=$("#errbox");el.style.display="block";el.textContent=e.message}};
 })();
 </script>
 </body>
