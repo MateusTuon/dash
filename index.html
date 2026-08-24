@@ -54,6 +54,24 @@ h2{font:650 17px/1.2 Fraunces,serif;margin:26px 0 4px}
 .spark{margin-top:8px;display:block}
 .spark path{fill:none;stroke:var(--teal);stroke-width:1.5}
 .spark.gold path{stroke:var(--gold)}
+.dl{font:600 11px/1 "JetBrains Mono",monospace;margin-left:2px}
+.dl.ok{color:var(--teal)} .dl.red{color:var(--red)}
+.loja{display:grid;grid-template-columns:1fr;gap:10px;margin-top:2px}
+@media (min-width:560px){ .loja{grid-template-columns:1.1fr 1fr} }
+.panel{background:var(--navy2);border:1px solid var(--rule);border-radius:10px;padding:14px}
+.panel h3{font:650 13px/1.2 Fraunces,serif;margin-bottom:10px}
+.brk{width:100%;min-width:0;font:400 12px/1.7 "JetBrains Mono",monospace}
+.brk td{padding:2px 0;border:none;text-align:right;white-space:nowrap}
+.brk td:first-child{text-align:left;color:var(--cream-dim);font-family:Inter;font-size:12px}
+.brk tr.tot td{border-top:1px solid var(--rule);padding-top:6px;font-weight:600}
+.vbar{margin:7px 0}
+.vbar .vl{display:flex;justify-content:space-between;font:400 11px/1.4 Inter;color:var(--cream-dim);margin-bottom:3px}
+.vbar .vl b{font:600 11px/1.4 "JetBrains Mono",monospace;color:var(--cream)}
+.vbar .tr{height:5px;background:var(--navy3);border-radius:3px}
+.vbar .fl{height:5px;background:var(--teal);border-radius:3px}
+.donutrow{display:flex;align-items:center;gap:14px}
+.leg{font:400 12px/1.9 Inter;color:var(--cream-dim)}
+.leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
 
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:10px}
 table{border-collapse:collapse;width:100%;min-width:680px;font:400 11.5px/1.4 "JetBrains Mono",monospace}
@@ -139,6 +157,23 @@ function spark(series, gold=false){
   return `<svg class="spark${gold?" gold":""}" viewBox="0 0 100 30" width="100%" height="30" aria-hidden="true"><path d="${d}"/></svg>`;
 }
 
+function delta(cur, prev, invert=false){
+  if(cur==null||prev==null||!prev) return "";
+  const p=((cur-prev)/Math.abs(prev))*100;
+  if(Math.abs(p)<0.05) return `<span class="dl">— 0%</span>`;
+  const up=p>0, good=invert? !up : up;
+  return `<span class="dl ${good?"ok":"red"}">${up?"▲":"▼"} ${Math.abs(p).toFixed(p<10?1:0)}%</span>`;
+}
+function donut(a, b){
+  const tot=a+b; if(!tot) return "";
+  const pa=a/tot, C=2*Math.PI*30;
+  return `<svg viewBox="0 0 80 80" width="86" height="86" aria-hidden="true">
+    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--navy3)" stroke-width="11"/>
+    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--teal)" stroke-width="11"
+      stroke-dasharray="${(pa*C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 40 40)" stroke-linecap="butt"/>
+    <text x="40" y="38" text-anchor="middle" fill="var(--cream)" font-family="JetBrains Mono" font-size="13" font-weight="600">${fmtI(tot)}</text>
+    <text x="40" y="52" text-anchor="middle" fill="var(--cream-dim)" font-family="Inter" font-size="8">pedidos 7d</text></svg>`;
+}
 function card(k, valTxt, valCls, gaugeHtml, cmp, sparkHtml=""){
   return `<div class="card"><div class="k">${k}</div>
     <div class="v ${valCls||""}">${valTxt}</div>${gaugeHtml||""}${cmp?`<div class="cmp">${cmp}</div>`:""}${sparkHtml}</div>`;
@@ -147,24 +182,24 @@ function card(k, valTxt, valCls, gaugeHtml, cmp, sparkHtml=""){
 function render(){
   const b=DATA.brands[active], rg=DATA.reguas;
   if(!b){ $("#main").innerHTML="<p class='note'>Marca ainda sem dados — configure o account_id no config/brands.json.</p>"; return; }
-  const a7=b.agg_7d||{}, a30=b.agg_30d||{}, s=b.series_30d||{};
+  const a7=b.agg_7d||{}, ap=b.agg_7d_prev||{}, a30=b.agg_30d||{}, s=b.series_30d||{};
   const freq=b.freq_15d;
 
   let h=`<h2>Decisão · 7 dias</h2><div class="sub">janela ${DATA.janela.since} → ${DATA.janela.until} · comparativo 30d entre parênteses</div><div class="cards">`;
 
-  h+=card("aMER", fmtN(a7.amer), cls(a7.amer,rg.amer.strong,rg.amer.watch),
+  h+=card("aMER", fmtN(a7.amer)+delta(a7.amer,ap.amer), cls(a7.amer,rg.amer.strong,rg.amer.watch),
     `<div class="gauge"><i style="left:${gaugePos(a7.amer,rg.amer.strong,rg.amer.watch)}%"></i></div>
      <div class="gauge-lbl"><span>${fmtN(rg.amer.watch,1)}</span><span>${fmtN(rg.amer.strong,1)}</span></div>`,
     `30d: ${fmtN(a30.amer)}`, spark(s.amer||[]));
 
-  h+=card("MER líquido", fmtN(a7.mer_liq), cls(a7.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch),
+  h+=card("MER líquido", fmtN(a7.mer_liq)+delta(a7.mer_liq,ap.mer_liq), cls(a7.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch),
     `<div class="gauge"><i style="left:${gaugePos(a7.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch)}%"></i></div>
      <div class="gauge-lbl"><span>${fmtN(rg.mer_liq.watch,1)}</span><span>${fmtN(rg.mer_liq.strong,1)}</span></div>`,
     `30d: ${fmtN(a30.mer_liq)}`);
 
-  h+=card("CAC real", fmtR(a7.cac), "", "", `30d: ${fmtR(a30.cac)} · AOV novos ${fmtR(a7.aov_novos)}`, spark(s.cac||[],true));
-  h+=card("NNC", fmtI(a7.nnc), "", "", `30d: ${fmtI(a30.nnc)} clientes novos`);
-  h+=card("Receita de novos", fmtR(a7.receita_novos), "", "", `30d: ${fmtR(a30.receita_novos)}`);
+  h+=card("CAC real", fmtR(a7.cac)+delta(a7.cac,ap.cac,true), "", "", `30d: ${fmtR(a30.cac)} · AOV novos ${fmtR(a7.aov_novos)}`, spark(s.cac||[],true));
+  h+=card("NNC", fmtI(a7.nnc)+delta(a7.nnc,ap.nnc), "", "", `30d: ${fmtI(a30.nnc)} clientes novos`);
+  h+=card("Receita de novos", fmtR(a7.receita_novos)+delta(a7.receita_novos,ap.receita_novos), "", "", `30d: ${fmtR(a30.receita_novos)}`);
   h+=card("MC de aquisição*", fmtR(a7.mc_aquisicao_estimada),
     (a7.mc_aquisicao_estimada??0)>=0?"ok":"red", "", `30d: ${fmtR(a30.mc_aquisicao_estimada)} · *estimada (config)`);
 
@@ -176,8 +211,42 @@ function render(){
   h+=card("ROAS plataforma", fmtN(a7.roas_plataforma),
     cls(a7.roas_plataforma,rg.roas_barra_vencedor,rg.roas_barra_vencedor*0.75), "",
     `barra do vencedor: ${fmtN(rg.roas_barra_vencedor,1)}`);
-  h+=card("Gasto c/ imposto", fmtR(a7.gasto_imposto), "", "", `30d: ${fmtR(a30.gasto_imposto)}`, spark(s.gasto_imposto||[],true));
+  h+=card("Gasto c/ imposto", fmtR(a7.gasto_imposto)+delta(a7.gasto_imposto,ap.gasto_imposto), "", "", `30d: ${fmtR(a30.gasto_imposto)}`, spark(s.gasto_imposto||[],true));
   h+="</div>";
+
+  /* loja: funil/cvr, breakdown, novo x recorrente, variantes */
+  const rec7=(a7.pedidos||0)-(a7.nnc||0);
+  h+=`<h2>Loja · 7 dias</h2><div class="sub">vs. 7 dias anteriores</div><div class="cards">`;
+  if(a7.sessoes){
+    h+=card("Sessões", fmtI(a7.sessoes)+delta(a7.sessoes,ap.sessoes), "", "", `30d: ${fmtI(a30.sessoes)}`);
+    h+=card("Conversão", fmtN(a7.cvr)+"%"+delta(a7.cvr,ap.cvr), "", "", `pedidos ÷ sessões`);
+    h+=card("RPV", fmtN(a7.rpv)+delta(a7.rpv,ap.rpv), "", "", `receita ÷ sessões`);
+  }
+  h+=card("AOV", fmtN(a7.aov)+delta(a7.aov,ap.aov), "", "", `30d: ${fmtN(a30.aov)}`, spark(s.aov||[]));
+  h+=card("Pedidos", fmtI(a7.pedidos)+delta(a7.pedidos,ap.pedidos), "", "", `30d: ${fmtI(a30.pedidos)}`);
+  h+=card("Pag. líquidos", fmtR(a7.pagamentos_liquidos)+delta(a7.pagamentos_liquidos,ap.pagamentos_liquidos), "", "", `30d: ${fmtR(a30.pagamentos_liquidos)}`);
+  h+=`</div>`;
+  h+=`<div class="loja" style="margin-top:10px">`;
+  h+=`<div class="panel"><h3>Detalhamento de vendas · 7d</h3><table class="brk">
+    <tr><td>Vendas brutas</td><td>${fmtR(a7.vendas_brutas)} ${delta(a7.vendas_brutas,ap.vendas_brutas)}</td></tr>
+    <tr><td>Descontos</td><td>−${fmtR(a7.descontos)} ${delta(a7.descontos,ap.descontos,true)}</td></tr>
+    <tr><td>Estornos</td><td>−${fmtR(a7.estornos)} ${delta(a7.estornos,ap.estornos,true)}</td></tr>
+    <tr class="tot"><td>Vendas líquidas</td><td>${fmtR(a7.vendas_liquidas)} ${delta(a7.vendas_liquidas,ap.vendas_liquidas)}</td></tr>
+    <tr><td>Frete cobrado</td><td>${fmtR(a7.frete_cobrado)}</td></tr></table></div>`;
+  h+=`<div class="panel"><h3>Novo × recorrente · 7d</h3><div class="donutrow">${donut(a7.nnc||0, rec7)}
+    <div class="leg"><div><i style="background:var(--teal)"></i>Novos <b style="color:var(--cream)">${fmtI(a7.nnc)}</b> ${delta(a7.nnc,ap.nnc)}</div>
+    <div><i style="background:var(--navy3)"></i>Recorrentes <b style="color:var(--cream)">${fmtI(rec7)}</b> ${delta(rec7,(ap.pedidos||0)-(ap.nnc||0))}</div></div></div></div>`;
+  const tv=(a30.top_variantes||[]);
+  if(tv.length){
+    const mx=tv[0][1]||1;
+    h+=`<div class="panel" style="grid-column:1/-1"><h3>Top produtos por unidades · 30d</h3>`;
+    for(const [nome,un] of tv){
+      h+=`<div class="vbar"><div class="vl"><span>${nome}</span><b>${fmtI(un)}</b></div>
+      <div class="tr"><div class="fl" style="width:${(un/mx*100).toFixed(1)}%"></div></div></div>`;
+    }
+    h+=`</div>`;
+  }
+  h+=`</div>`;
 
   /* diagnóstico diário */
   h+=`<h2>Diagnóstico · 14 dias</h2><div class="sub">CPM · CTR · CPC · freq · carrinho · CPA · ROAS · hook/ratio</div>
