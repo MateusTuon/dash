@@ -24,7 +24,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--tx);font:400 15px/1.5 var(--f-ui);padding-bottom:60px}
-.wrap{max-width:820px;margin:0 auto;padding:0 14px}
+.wrap{max-width:1360px;margin:0 auto;padding:0 clamp(14px,3vw,40px)}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 input,select{font:400 13px/1 var(--f-num);color:var(--tx);background:var(--card);border:1px solid var(--rule);border-radius:7px;padding:8px 10px}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--pos2);outline-offset:1px}
@@ -55,9 +55,11 @@ h2{font:650 16px/1.2 var(--f-disp);margin:22px 0 4px}
 .sub{font-size:12px;color:var(--dim);margin-bottom:10px}
 
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media (min-width:640px){.cards{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:640px){.cards{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}}
+@media (min-width:900px){.card.wide{grid-column:span 2}}
 .card{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px;position:relative}
 .card.wide{grid-column:1/-1}
+@media (max-width:899px){.card.wide{grid-column:1/-1}}
 .card .k{font:600 10px/1.3 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;color:var(--dim);padding-right:60px}
 .card .v{font:600 23px/1.15 var(--f-num);margin-top:6px;word-break:break-word}
 .v.ok{color:var(--pos)} .v.watch{color:var(--warn)} .v.red{color:var(--neg)}
@@ -68,7 +70,7 @@ h2{font:650 16px/1.2 var(--f-disp);margin:22px 0 4px}
 .gauge.inv{background:linear-gradient(to right,var(--pos2) 0 33%,var(--warn2) 33% 66%,var(--neg) 66% 100%)}
 .gauge i{position:absolute;top:-3.5px;width:3px;height:12px;background:var(--tx);border-radius:2px;transform:translateX(-50%)}
 .glbl{display:flex;justify-content:space-between;font:400 9.5px/1 var(--f-num);color:var(--mut);margin-top:5px}
-.chart{margin-top:8px;display:block;width:100%}
+.chart{margin-top:8px;display:block;width:100%;max-height:150px}
 .tbl-mini{width:100%;font:400 11px/1.6 var(--f-num);margin-top:8px}
 .tbl-mini td{padding:2px 0;border-bottom:1px solid var(--rule)}
 .tbl-mini td:last-child{text-align:right}
@@ -211,6 +213,7 @@ const NATIVAS=[
  {id:"carr",nome:"Carrinhos",f:"carrinhos",fmt:"int",viz:"bar",off:true},
  {id:"sessoes",nome:"Sessões",f:"sessoes",fmt:"int",viz:"area",off:true},
  {id:"cvr",nome:"Conversão %",f:"pedidos * 100 / sessoes",fmt:"pct",viz:"line",off:true},
+ {id:"freq_media",nome:"Freq média diária",wavg:["freq_dia","impressoes"],fmt:"num",inv:true,viz:"line"},
  {id:"rpv",nome:"RPV",f:"receita_bruta / sessoes",fmt:"num",viz:"line",off:true},
 ];
 
@@ -254,7 +257,7 @@ function compilar(src){
 }
 const COMPILED={};
 function metricaDef(id){return NATIVAS.find(m=>m.id===id)||(CFG.custom||[]).find(m=>m.id===id)}
-function fnDe(id){if(!COMPILED[id]){const d=metricaDef(id);COMPILED[id]=d?compilar(d.f):{err:"?"}}return COMPILED[id]}
+function fnDe(id){if(!COMPILED[id]){const d=metricaDef(id);COMPILED[id]=(d&&d.f)?compilar(d.f):{err:"?"}}return COMPILED[id]}
 
 /* =================== dados =================== */
 function rowsBrand(){return (HIST&&HIST[brand])?HIST[brand]:[]}
@@ -272,9 +275,16 @@ function range(){
   return{cur,prev,de,ate}
 }
 function soma(rows){const c={};CAMPOS.forEach(k=>c[k]=rows.reduce((a,r)=>a+(r[k]||0),0));return c}
-function valorAgg(id,rows){const c=fnDe(id);if(c.err||!rows.length)return null;
+function valorAgg(id,rows){if(!rows.length)return null;
+ const def=metricaDef(id);
+ if(def&&def.wavg){const[a,b]=def.wavg;let n=0,dv=0;
+  rows.forEach(r=>{const x=r[a],w=r[b];if(x!=null&&w){n+=x*w;dv+=w}});
+  return dv?n/dv:null}
+ const c=fnDe(id);if(c.err)return null;
  const v=c.fn(soma(rows));return v==null||!isFinite(v)?null:v}
-function serie(id,rows){const c=fnDe(id);if(c.err)return[];
+function serie(id,rows){const def=metricaDef(id);
+ if(def&&def.wavg)return rows.map(r=>r[def.wavg[0]]==null?null:r[def.wavg[0]]);
+ const c=fnDe(id);if(c.err)return[];
  return rows.map(r=>{const ctx={};CAMPOS.forEach(k=>ctx[k]=r[k]||0);const v=c.fn(ctx);return v==null||!isFinite(v)?null:v})}
 
 /* =================== formatação =================== */
@@ -284,7 +294,8 @@ function fmt(v,f){if(v==null)return"–";
  if(f==="int")return fmtI(v);
  if(f==="pct")return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";
  return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
-function delta(cur,prev,inv){if(!comparar||cur==null||prev==null||!prev)return"";
+let PREV_OK=true;
+function delta(cur,prev,inv){if(!comparar||cur==null||prev==null||!prev)return PREV_OK?"":`<span class="dl nt" title="histórico insuficiente">·</span>`;
  const p=((cur-prev)/Math.abs(prev))*100;if(Math.abs(p)<0.05)return`<span class="dl nt">—</span>`;
  const up=p>0,good=inv?!up:up;
  return`<span class="dl ${good?"ok":"red"}">${up?"▲":"▼"} ${Math.abs(p).toFixed(Math.abs(p)<10?1:0)}%</span>`}
@@ -293,32 +304,59 @@ function cls(v,rg,inv){if(v==null||!rg)return"";
  return v<rg.watch?"ok":v<rg.strong?"watch":"red"}
 
 /* =================== gráficos SVG =================== */
-function svgLine(cur,prev,area){
+function lbl(v,f){if(v==null)return"";
+ if(f==="brl")return "R$ "+(Math.abs(v)>=1000?Math.round(v).toLocaleString("pt-BR"):v.toLocaleString("pt-BR",{maximumFractionDigits:2}));
+ if(f==="int")return Math.round(v).toLocaleString("pt-BR");
+ if(f==="pct")return v.toFixed(1)+"%";
+ return v>=100?Math.round(v).toLocaleString("pt-BR"):v.toFixed(2)}
+function pill(x,y,txt,W){const w=txt.length*6.6+12,xx=Math.max(2,Math.min(W-w-2,x-w/2));
+ return `<g><rect x="${xx.toFixed(1)}" y="${(y-16).toFixed(1)}" width="${w.toFixed(1)}" height="15" rx="7.5" fill="var(--tx)"/><text x="${(xx+w/2).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-family="var(--f-num)" font-size="10" fill="var(--bg)">${txt}</text></g>`}
+function svgLine(cur,prev,area,dates,fmtv,wide){
   const all=cur.concat(comparar?prev:[]).filter(v=>v!=null);
   if(all.length<2)return"";
   const min=Math.min(...all),max=Math.max(...all),rng=(max-min)||1;
-  const W=300,H=54,PX=v=>H-6-((v-min)/rng)*(H-14);
+  const W=wide?560:320,H=wide?96:88,T=20,B=14,L=4,R=4;
+  const PX=v=>H-B-((v-min)/rng)*(H-T-B), X=(i,n)=>L+(i/((n-1)||1))*(W-L-R);
   function path(s){let d="",pen=false;
     s.forEach((v,i)=>{if(v==null){pen=false;return}
-      const x=(i/((s.length-1)||1))*W,y=PX(v);d+=(pen?" L":" M")+x.toFixed(1)+" "+y.toFixed(1);pen=true});
-    return d}
-  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" height="54" aria-hidden="true">`;
+      d+=(pen?" L":" M")+X(i,s.length).toFixed(1)+" "+PX(v).toFixed(1);pen=true});return d}
+  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+  out+=`<line x1="0" y1="${(H-B).toFixed(1)}" x2="${W}" y2="${(H-B).toFixed(1)}" stroke="var(--rule)" stroke-width="0.6"/>`;
+  out+=`<line x1="0" y1="${PX(max).toFixed(1)}" x2="${W}" y2="${PX(max).toFixed(1)}" stroke="var(--rule)" stroke-width="0.5" stroke-dasharray="2 4"/>`;
   if(comparar&&prev.length>1)out+=`<path d="${path(prev)}" fill="none" stroke="var(--rule2)" stroke-width="1" stroke-dasharray="3 3"/>`;
-  if(area){out+=`<path d="${path(cur)} L ${W} ${H} L 0 ${H} Z" fill="var(--pos2)" opacity="0.13" stroke="none"/>`}
-  out+=`<path d="${path(cur)}" fill="none" stroke="var(--pos2)" stroke-width="1.6"/></svg>`;
-  return out}
-function svgBar(cur){
+  if(area)out+=`<path d="${path(cur)} L ${W-R} ${H-B} L ${L} ${H-B} Z" fill="var(--pos2)" opacity="0.12" stroke="none"/>`;
+  out+=`<path d="${path(cur)}" fill="none" stroke="var(--pos2)" stroke-width="1.6"/>`;
+  const n=cur.length;
+  const marks=n<=10?cur.map((v,i)=>v==null?null:i).filter(i=>i!=null)
+    :[cur.indexOf(Math.max(...cur.filter(v=>v!=null))),cur.indexOf(Math.min(...cur.filter(v=>v!=null))),n-1].filter((v,i,a)=>v>=0&&a.indexOf(v)===i);
+  marks.forEach(i=>{const v=cur[i];if(v==null)return;const x=X(i,n),y=PX(v);
+    out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4" fill="var(--pos2)"/>`+pill(x,y-3,lbl(v,fmtv),W)});
+  if(dates&&dates.length){
+    out+=`<text x="${L}" y="${H-2}" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[0].slice(5).split("-").reverse().join("/")}</text>`;
+    out+=`<text x="${W-R}" y="${H-2}" text-anchor="end" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[dates.length-1].slice(5).split("-").reverse().join("/")}</text>`;
+  }
+  return out+"</svg>"}
+function svgBar(cur,dates,fmtv,wide){
   const vals=cur.filter(v=>v!=null); if(!vals.length)return"";
-  const max=Math.max(...vals)||1,W=300,H=54,n=cur.length,bw=Math.max(2,(W/n)-2);
-  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" height="54" aria-hidden="true">`;
-  cur.forEach((v,i)=>{if(v==null)return;const h=Math.max(1,(v/max)*(H-8));
-    out+=`<rect x="${(i*(W/n)).toFixed(1)}" y="${(H-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="var(--pos2)"/>`});
+  const max=Math.max(...vals)||1,W=wide?560:320,H=wide?96:88,T=20,B=14,n=cur.length,bw=Math.max(2,((W-8)/n)-2);
+  let out=`<svg class="chart" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+  out+=`<line x1="0" y1="${H-B}" x2="${W}" y2="${H-B}" stroke="var(--rule)" stroke-width="0.6"/>`;
+  let iMax=-1;cur.forEach((v,i)=>{if(v!=null&&(iMax<0||v>cur[iMax]))iMax=i});
+  cur.forEach((v,i)=>{if(v==null)return;const h=Math.max(1,(v/max)*(H-T-B)),x=4+i*((W-8)/n);
+    out+=`<rect x="${x.toFixed(1)}" y="${(H-B-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="var(--pos2)"${i===iMax?"":" opacity=\"0.75\""}/>`});
+  if(iMax>=0){const x=4+iMax*((W-8)/n)+bw/2,y=H-B-Math.max(1,(cur[iMax]/max)*(H-T-B));
+    out+=pill(x,y-2,lbl(cur[iMax],fmtv),W)}
+  if(dates&&dates.length){
+    out+=`<text x="4" y="${H-2}" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[0].slice(5).split("-").reverse().join("/")}</text>`;
+    out+=`<text x="${W-4}" y="${H-2}" text-anchor="end" font-family="var(--f-num)" font-size="9.5" fill="var(--mut)">${dates[dates.length-1].slice(5).split("-").reverse().join("/")}</text>`;
+  }
   return out+"</svg>"}
 
 /* =================== render =================== */
 function render(){
   if(!HIST||!brand)return;
   const {cur,prev,de,ate}=range();
+  PREV_OK=prev.length>=cur.length*0.9;
   const b=(LATEST&&LATEST.brands&&LATEST.brands[brand])||{};
   $("#main").innerHTML="";
   let h=`<h2>Métricas · ${cur.length} dia${cur.length===1?"":"s"}</h2>
@@ -345,13 +383,13 @@ function render(){
       h+=`<div class="gauge"><i style="left:${(p*100).toFixed(1)}%"></i></div>
       <div class="glbl"><span>${fmt(rg.watch,"num")}</span><span>${fmt(rg.strong,"num")}</span></div>`;
     }
-    if(m.viz==="line"||m.viz==="area")h+=svgLine(serie(m.id,cur),serie(m.id,prev),m.viz==="area");
-    if(m.viz==="bar")h+=svgBar(serie(m.id,cur));
+    if(m.viz==="line"||m.viz==="area")h+=svgLine(serie(m.id,cur),serie(m.id,prev),m.viz==="area",cur.map(r=>r.date),def.fmt,wide);
+    if(m.viz==="bar")h+=svgBar(serie(m.id,cur),cur.map(r=>r.date),def.fmt,wide);
     if(m.viz==="tabela"){
       const s=serie(m.id,cur),last=cur.slice(-8),sl=s.slice(-8);
       h+=`<table class="tbl-mini">${last.map((r,i)=>`<tr><td>${r.date.slice(5)}</td><td>${fmt(sl[i],def.fmt)}</td></tr>`).join("")}</table>`;
     }
-    if(m.viz==="kpi"&&!rg)h+=`<div class="cmp">período anterior: ${fmt(vp,def.fmt)}</div>`;
+    if(m.viz==="kpi"&&!rg)h+=`<div class="cmp">${PREV_OK?"período anterior: "+fmt(vp,def.fmt):"sem histórico p/ comparar — rode backfill maior"}</div>`;
     h+=`</div>`;
   });
 
@@ -359,11 +397,11 @@ function render(){
   const f=b.freq_15d;
   if(f!=null&&RG){
     const g=RG.freq_guardrail_15d,p=Math.min(1,Math.max(0,f/(g*1.5)));
-    h+=`<div class="card"><div class="k">Freq 15d (conta toda)</div>
+    h+=`<div class="card"><div class="k">Guardrail · Freq 15d fixa</div>
     <div class="v ${f<g*0.85?"ok":f<g?"watch":"red"}">${fmt(f,"num")}</div>
     <div class="gauge inv"><i style="left:${(p*100).toFixed(1)}%"></i></div>
     <div class="glbl"><span>0</span><span>${fmt(g,"num")}</span></div>
-    <div class="cmp">janela fixa de 15 dias · inclui remarketing</div></div>`;
+    <div class="cmp">janela fixa (não segue o período) · conta toda, incl. remarketing</div></div>`;
   }
   h+="</div>";
   $("#main").innerHTML=h;
