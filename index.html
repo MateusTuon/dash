@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tráfego · Grupo Shrigma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F2233; --navy2:#16324A; --navy3:#1D3E5C;
+  --cream:#F5EFE2; --cream-dim:#B8C4CE;
+  --teal:#3FA69B; --gold:#C9A227; --red:#C4554D;
+  --rule:#27455F;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--navy);color:var(--cream);font:400 15px/1.5 Inter,system-ui,sans-serif;padding-bottom:56px}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+
+header{padding:22px 0 14px;border-bottom:1px solid var(--rule)}
+.eyebrow{font:600 10px/1 Inter;letter-spacing:.16em;text-transform:uppercase;color:var(--teal)}
+h1{font:650 26px/1.15 Fraunces,serif;margin-top:6px}
+.updated{font:400 12px/1.4 "JetBrains Mono",monospace;color:var(--cream-dim);margin-top:6px}
+
+.tabs{display:flex;gap:8px;margin:16px 0}
+.tab{flex:1;padding:10px 0;text-align:center;font:600 13px/1 Inter;color:var(--cream-dim);
+  background:var(--navy2);border:1px solid var(--rule);border-radius:8px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--navy);background:var(--teal);border-color:var(--teal)}
+.tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.note{font-size:11.5px;color:var(--cream-dim);margin:2px 0 14px}
+.note b{color:var(--gold);font-weight:600}
+
+h2{font:650 17px/1.2 Fraunces,serif;margin:26px 0 4px}
+.sub{font-size:12px;color:var(--cream-dim);margin-bottom:12px}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.card{background:var(--navy2);border:1px solid var(--rule);border-radius:10px;padding:12px 12px 10px}
+.card .k{font:600 10px/1.2 Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-dim)}
+.card .v{font:600 24px/1.1 "JetBrains Mono",monospace;margin-top:6px;display:flex;align-items:baseline;gap:6px}
+.card .v small{font:400 11px/1 "JetBrains Mono",monospace;color:var(--cream-dim)}
+.card .cmp{font:400 11px/1.5 "JetBrains Mono",monospace;color:var(--cream-dim);margin-top:4px}
+.v.ok{color:var(--teal)} .v.watch{color:var(--gold)} .v.red{color:var(--red)}
+
+/* assinatura: medidor de régua — barra com faixas e marcador de onde o valor caiu */
+.gauge{position:relative;height:5px;border-radius:3px;margin-top:9px;overflow:visible;
+  background:linear-gradient(to right,var(--red) 0 33%,var(--gold) 33% 66%,var(--teal) 66% 100%)}
+.gauge.inv{background:linear-gradient(to right,var(--teal) 0 33%,var(--gold) 33% 66%,var(--red) 66% 100%)}
+.gauge i{position:absolute;top:-3.5px;width:3px;height:12px;background:var(--cream);border-radius:2px;transform:translateX(-50%)}
+.gauge-lbl{display:flex;justify-content:space-between;font:400 9.5px/1 "JetBrains Mono",monospace;color:var(--cream-dim);margin-top:5px}
+
+.spark{margin-top:8px;display:block}
+.spark path{fill:none;stroke:var(--teal);stroke-width:1.5}
+.spark.gold path{stroke:var(--gold)}
+
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:680px;font:400 11.5px/1.4 "JetBrains Mono",monospace}
+th{font:600 9.5px/1.3 Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);
+  text-align:right;padding:9px 8px;border-bottom:1px solid var(--rule);background:var(--navy2);position:sticky;top:0}
+th:first-child,td:first-child{text-align:left;padding-left:12px}
+td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.ok{color:var(--teal)} td.watch{color:var(--gold)} td.red{color:var(--red)}
+tbody tr:nth-child(odd){background:rgba(255,255,255,.02)}
+
+.setup{background:var(--navy2);border:1px solid var(--rule);border-radius:12px;padding:20px;margin-top:26px}
+.setup h2{margin-top:0}
+.setup p{font-size:13px;color:var(--cream-dim);margin:8px 0 14px}
+.setup label{display:block;font:600 11px/1 Inter;letter-spacing:.08em;text-transform:uppercase;color:var(--cream-dim);margin:12px 0 5px}
+.setup input{width:100%;padding:11px 12px;font:400 14px/1 "JetBrains Mono",monospace;color:var(--cream);
+  background:var(--navy);border:1px solid var(--rule);border-radius:8px}
+.setup input:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.setup button{margin-top:16px;width:100%;padding:12px;font:600 14px/1 Inter;color:var(--navy);
+  background:var(--teal);border:none;border-radius:8px;cursor:pointer}
+.err{color:var(--red);font-size:12.5px;margin-top:10px;display:none}
+
+.foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--rule);
+  font:400 10.5px/1.6 "JetBrains Mono",monospace;color:var(--cream-dim)}
+@media (min-width:560px){ .cards{grid-template-columns:repeat(3,1fr)} h1{font-size:30px} }
+@media (prefers-reduced-motion:no-preference){ .tab{transition:background .15s,color .15s} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Grupo Shrigma · Tráfego</div>
+    <h1>Painel de aquisição</h1>
+    <div class="updated" id="updated">carregando…</div>
+  </header>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <p class="note"><b>Marcas nunca somadas.</b> Gasto sempre com imposto (×1,1215). Fonte da verdade de cliente novo: bulk export mensal.</p>
+
+  <main id="main"></main>
+
+  <div class="setup" id="setup" style="display:none">
+    <h2>Conectar aos dados</h2>
+    <p>Este painel não guarda nenhum número — ele lê o <code>data/latest.json</code> do repositório privado usando um token só de leitura, salvo apenas neste aparelho.</p>
+    <label for="repo">Repositório (dono/nome)</label>
+    <input id="repo" placeholder="mateus/shrigma-trafego" autocomplete="off">
+    <label for="pat">Fine-grained PAT (Contents: read-only)</label>
+    <input id="pat" type="password" placeholder="github_pat_…" autocomplete="off">
+    <button id="connect">Conectar</button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="foot">Régua aMER ≥3,0 forte · 2,6–3,0 atenção · &lt;2,6 vermelho — MER líq. ≥3,9 · 3,4–3,9 · &lt;3,4 — Freq 15d &lt;4,0 · Barra do vencedor ROAS ≥4,0</div>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const fmtR = v => v==null ? "–" : "R$ " + v.toLocaleString("pt-BR",{maximumFractionDigits:0});
+const fmtN = (v,d=2) => v==null ? "–" : v.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtI = v => v==null ? "–" : v.toLocaleString("pt-BR");
+
+let DATA=null, brandIds=[], active=null;
+
+/* ---- régua: classifica e posiciona o marcador do medidor ---- */
+function cls(val, strong, watch, invert=false){
+  if(val==null) return "";
+  if(!invert) return val>=strong?"ok":val>=watch?"watch":"red";
+  return val<watch?"ok":val<strong?"watch":"red";
+}
+function gaugePos(val, strong, watch, invert=false){
+  if(val==null) return 0;
+  const lo=invert?0:watch*0.6, hi=invert?strong*1.5:strong*1.4;
+  const p=Math.min(1,Math.max(0,(val-lo)/(hi-lo)));
+  return (p*100).toFixed(1);
+}
+function spark(series, gold=false){
+  const v=series.filter(x=>x!=null); if(v.length<2) return "";
+  const min=Math.min(...v), max=Math.max(...v), rng=(max-min)||1;
+  const pts=series.map((x,i)=>x==null?null:[(i/(series.length-1))*100,26-((x-min)/rng)*22]);
+  let d="",pen=false;
+  for(const p of pts){ if(!p){pen=false;continue} d+=(pen?" L":" M")+p[0].toFixed(1)+" "+p[1].toFixed(1); pen=true; }
+  return `<svg class="spark${gold?" gold":""}" viewBox="0 0 100 30" width="100%" height="30" aria-hidden="true"><path d="${d}"/></svg>`;
+}
+
+function card(k, valTxt, valCls, gaugeHtml, cmp, sparkHtml=""){
+  return `<div class="card"><div class="k">${k}</div>
+    <div class="v ${valCls||""}">${valTxt}</div>${gaugeHtml||""}${cmp?`<div class="cmp">${cmp}</div>`:""}${sparkHtml}</div>`;
+}
+
+function render(){
+  const b=DATA.brands[active], rg=DATA.reguas;
+  if(!b){ $("#main").innerHTML="<p class='note'>Marca ainda sem dados — configure o account_id no config/brands.json.</p>"; return; }
+  const a7=b.agg_7d||{}, a30=b.agg_30d||{}, s=b.series_30d||{};
+  const freq=b.freq_15d;
+
+  let h=`<h2>Decisão · 7 dias</h2><div class="sub">janela ${DATA.janela.since} → ${DATA.janela.until} · comparativo 30d entre parênteses</div><div class="cards">`;
+
+  h+=card("aMER", fmtN(a7.amer), cls(a7.amer,rg.amer.strong,rg.amer.watch),
+    `<div class="gauge"><i style="left:${gaugePos(a7.amer,rg.amer.strong,rg.amer.watch)}%"></i></div>
+     <div class="gauge-lbl"><span>${fmtN(rg.amer.watch,1)}</span><span>${fmtN(rg.amer.strong,1)}</span></div>`,
+    `30d: ${fmtN(a30.amer)}`, spark(s.amer||[]));
+
+  h+=card("MER líquido", fmtN(a7.mer_liq), cls(a7.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch),
+    `<div class="gauge"><i style="left:${gaugePos(a7.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch)}%"></i></div>
+     <div class="gauge-lbl"><span>${fmtN(rg.mer_liq.watch,1)}</span><span>${fmtN(rg.mer_liq.strong,1)}</span></div>`,
+    `30d: ${fmtN(a30.mer_liq)}`);
+
+  h+=card("CAC real", fmtR(a7.cac), "", "", `30d: ${fmtR(a30.cac)} · AOV novos ${fmtR(a7.aov_novos)}`, spark(s.cac||[],true));
+  h+=card("NNC", fmtI(a7.nnc), "", "", `30d: ${fmtI(a30.nnc)} clientes novos`);
+  h+=card("Receita de novos", fmtR(a7.receita_novos), "", "", `30d: ${fmtR(a30.receita_novos)}`);
+  h+=card("MC de aquisição*", fmtR(a7.mc_aquisicao_estimada),
+    (a7.mc_aquisicao_estimada??0)>=0?"ok":"red", "", `30d: ${fmtR(a30.mc_aquisicao_estimada)} · *estimada (config)`);
+
+  h+=card("Freq 15d (cold)", fmtN(freq), cls(freq,rg.freq_guardrail_15d,rg.freq_guardrail_15d*0.85,true),
+    `<div class="gauge inv"><i style="left:${gaugePos(freq,rg.freq_guardrail_15d,rg.freq_guardrail_15d*0.7,true)}%"></i></div>
+     <div class="gauge-lbl"><span>0</span><span>${fmtN(rg.freq_guardrail_15d,1)}</span></div>`,
+    "guardrail: reach real da janela");
+
+  h+=card("ROAS plataforma", fmtN(a7.roas_plataforma),
+    cls(a7.roas_plataforma,rg.roas_barra_vencedor,rg.roas_barra_vencedor*0.75), "",
+    `barra do vencedor: ${fmtN(rg.roas_barra_vencedor,1)}`);
+  h+=card("Gasto c/ imposto", fmtR(a7.gasto_imposto), "", "", `30d: ${fmtR(a30.gasto_imposto)}`, spark(s.gasto_imposto||[],true));
+  h+="</div>";
+
+  /* diagnóstico diário */
+  h+=`<h2>Diagnóstico · 14 dias</h2><div class="sub">CPM · CTR · CPC · freq · carrinho · CPA · ROAS · hook/ratio</div>
+  <div class="tbl-wrap"><table><thead><tr>
+  <th>Dia</th><th>Gasto c/imp</th><th>CPM</th><th>CTR%</th><th>CPC</th><th>Freq</th>
+  <th>Carr</th><th>R$/Carr</th><th>Compras</th><th>CPA</th><th>ROAS</th><th>Hook%</th><th>Ratio%</th><th>aMER</th></tr></thead><tbody>`;
+  for(const r of (b.diario_14d||[]).slice().reverse()){
+    h+=`<tr><td>${r.date.slice(5)}</td><td>${fmtR(r.gasto_imposto)}</td><td>${fmtN(r.cpm)}</td>
+    <td>${fmtN(r.ctr)}</td><td>${fmtN(r.cpc)}</td>
+    <td class="${r.freq_dia>DATA.reguas.freq_fadiga_diaria?"red":""}">${fmtN(r.freq_dia)}</td>
+    <td>${fmtI(r.carrinhos)}</td><td>${fmtN(r.custo_carrinho)}</td><td>${fmtI(r.compras_meta)}</td>
+    <td>${fmtN(r.cpa_meta)}</td>
+    <td class="${cls(r.roas_plataforma,rg.roas_barra_vencedor,rg.roas_barra_vencedor*0.75)}">${fmtN(r.roas_plataforma)}</td>
+    <td>${fmtN(r.hook_pct,1)}</td><td>${fmtN(r.ratio_pct,1)}</td>
+    <td class="${cls(r.amer,rg.amer.strong,rg.amer.watch)}">${fmtN(r.amer)}</td></tr>`;
+  }
+  h+="</tbody></table></div>";
+
+  /* semanas seg–dom */
+  h+=`<h2>Semanas · seg → dom</h2><div class="sub">agregado recalculado sobre totais, não média de médias</div>
+  <div class="tbl-wrap"><table><thead><tr>
+  <th>Semana</th><th>Gasto c/imp</th><th>Pag. líquidos</th><th>Receita novos</th><th>NNC</th>
+  <th>CAC</th><th>aMER</th><th>MER líq</th><th>MC aq.*</th></tr></thead><tbody>`;
+  for(const w of (b.semanas||[])){
+    h+=`<tr><td>${w.semana.slice(5,10)} → ${w.semana.slice(18)}</td><td>${fmtR(w.gasto_imposto)}</td>
+    <td>${fmtR(w.pagamentos_liquidos)}</td><td>${fmtR(w.receita_novos)}</td><td>${fmtI(w.nnc)}</td>
+    <td>${fmtR(w.cac)}</td>
+    <td class="${cls(w.amer,rg.amer.strong,rg.amer.watch)}">${fmtN(w.amer)}</td>
+    <td class="${cls(w.mer_liq,rg.mer_liq.strong,rg.mer_liq.watch)}">${fmtN(w.mer_liq)}</td>
+    <td class="${(w.mc_aquisicao_estimada??0)>=0?"ok":"red"}">${fmtR(w.mc_aquisicao_estimada)}</td></tr>`;
+  }
+  h+="</tbody></table></div>";
+
+  $("#main").innerHTML=h;
+}
+
+function renderTabs(){
+  $("#tabs").innerHTML=brandIds.map(id=>
+    `<button class="tab" role="tab" aria-selected="${id===active}" data-id="${id}">${DATA.brands[id].nome}</button>`).join("");
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{active=t.dataset.id;renderTabs();render();});
+}
+
+function boot(data){
+  DATA=data; brandIds=Object.keys(data.brands);
+  if(!brandIds.length){ $("#updated").textContent="latest.json sem marcas — rode o ETL."; return; }
+  active=active&&brandIds.includes(active)?active:brandIds[0];
+  $("#updated").textContent="atualizado "+data.gerado_em.replace("T"," ").slice(0,16);
+  $("#setup").style.display="none";
+  renderTabs(); render();
+}
+
+async function loadLocal(){
+  try{ const r=await fetch("../data/latest.json",{cache:"no-store"});
+    if(r.ok){ boot(await r.json()); return true; } }catch(e){}
+  return false;
+}
+async function loadGithub(repo,pat){
+  const r=await fetch(`https://api.github.com/repos/${repo}/contents/data/latest.json`,
+    {headers:{Authorization:"Bearer "+pat,Accept:"application/vnd.github.raw+json"},cache:"no-store"});
+  if(!r.ok) throw new Error("GitHub API "+r.status+" — confira repo e token.");
+  boot(await r.json());
+}
+
+(async()=>{
+  if(await loadLocal()) return;
+  const repo=localStorage.getItem("shrigma_repo"), pat=localStorage.getItem("shrigma_pat");
+  if(repo&&pat){ try{ await loadGithub(repo,pat); return; }catch(e){} }
+  $("#setup").style.display="block";
+  $("#updated").textContent="aguardando conexão";
+  if(repo) $("#repo").value=repo;
+  $("#connect").onclick=async()=>{
+    const rp=$("#repo").value.trim(), pt=$("#pat").value.trim();
+    try{
+      await loadGithub(rp,pt);
+      localStorage.setItem("shrigma_repo",rp); localStorage.setItem("shrigma_pat",pt);
+    }catch(e){ const el=$("#err"); el.style.display="block"; el.textContent=e.message; }
+  };
+})();
+</script>
+</body>
+</html>
