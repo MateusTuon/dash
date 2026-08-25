@@ -131,6 +131,31 @@ body.editing .libwrap{display:block}
 textarea.io{width:100%;height:64px;margin-top:8px;font:400 11px/1.4 var(--f-num);color:var(--tx);background:var(--card2);border:1px solid var(--rule);border-radius:8px;padding:8px;display:none}
 textarea.io.show{display:block}
 
+.ger{display:none}
+body.vads .ger{display:block}
+body.vads #main,body.vads .libwrap,body.vads #btnEdit{display:none}
+.gbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 12px}
+.gtab{font:600 12px/1 var(--f-ui);padding:9px 14px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--dim)}
+.gtab.on{background:var(--acc);border-color:var(--acc);color:var(--bg)}
+.gbar input[type=text]{min-width:150px}
+.crumb{font:500 12px/1.6 var(--f-num);color:var(--dim);margin:0 0 8px}
+.crumb b{color:var(--tx)} .crumb a{color:var(--acc);cursor:pointer;text-decoration:underline dotted}
+.gtwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:10px;background:var(--card)}
+.gt{border-collapse:collapse;width:100%;min-width:760px;font:400 12px/1.5 var(--f-num)}
+.gt th{font:600 10px/1.3 var(--f-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);
+ text-align:right;padding:9px 8px;border-bottom:1px solid var(--rule);background:var(--card2);cursor:pointer;white-space:nowrap;position:sticky;top:0}
+.gt th.tl,.gt td.tl{text-align:left}
+.gt td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--rule);white-space:nowrap}
+.gt tr:last-child td{border-bottom:none}
+.gt td.nome{max-width:340px;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.gt td.nome:hover{color:var(--acc)}
+.gt .ok{color:var(--pos)} .gt .watch{color:var(--warn)} .gt .red{color:var(--neg)}
+.selo{font:600 9.5px/1 var(--f-ui);padding:3px 8px;border-radius:9px;background:var(--pos);color:var(--bg);margin-left:6px;vertical-align:1px}
+.selo.fp{background:var(--warn2);color:var(--tx)}
+.stdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px}
+.gchart{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px;margin-top:12px}
+.fchip2{font:500 11px/1 var(--f-num);padding:6px 9px;border:1px solid var(--rule);border-radius:12px;color:var(--dim);cursor:pointer}
+.fchip2.on{border-color:var(--acc);color:var(--acc)}
 .setup{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px;margin-top:26px;display:none}
 .setup label{display:block;font:600 11px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:12px 0 5px}
 .setup input{width:100%}
@@ -149,6 +174,7 @@ textarea.io.show{display:block}
     <div class="hbtns">
       <button class="hbtn" id="btnTema" title="alternar tema">◐ tema</button>
       <button class="hbtn" id="btnEdit">✎ editar</button>
+      <button class="hbtn" id="btnView">▦ gerenciador</button>
     </div>
     <div class="updated" id="updated">carregando…</div>
   </header>
@@ -196,6 +222,7 @@ textarea.io.show{display:block}
   </div>
 
   <main id="main"></main>
+  <section class="ger" id="ger"></section>
 
   <div class="setup" id="setup">
     <h2 style="margin-top:0">Conectar aos dados</h2>
@@ -244,6 +271,7 @@ const NATIVAS=[
  {id:"sessoes",nome:"Sessões",f:"sessoes",fmt:"int",viz:"area",off:true},
  {id:"cvr",nome:"Conversão %",f:"pedidos * 100 / sessoes",fmt:"pct",viz:"line",off:true},
  {id:"freq_media",nome:"Freq média diária",wavg:["freq_dia","impressoes"],fmt:"num",inv:true,viz:"line"},
+ {id:"guardrail",nome:"Guardrail · Freq 15d fixa",special:"g15",fmt:"num",inv:true,viz:"kpi"},
  {id:"rpv",nome:"RPV",f:"receita_bruta / sessoes",fmt:"num",viz:"line",off:true},
 ];
 
@@ -311,7 +339,9 @@ function valorAgg(id,rows){if(!rows.length)return null;
   rows.forEach(r=>{const x=r[a],w=r[b];if(x!=null&&w){n+=x*w;dv+=w}});
   return dv?n/dv:null}
  const c=fnDe(id);if(c.err)return null;
- const v=c.fn(soma(rows));return v==null||!isFinite(v)?null:v}
+ const s=soma(rows);
+ if((id==="sessoes"||id==="cvr"||id==="rpv")&&!s.sessoes)return null;
+ const v=c.fn(s);return v==null||!isFinite(v)?null:v}
 function serie(id,rows){const def=metricaDef(id);
  if(def&&def.wavg)return rows.map(r=>r[def.wavg[0]]==null?null:r[def.wavg[0]]);
  const c=fnDe(id);if(c.err)return[];
@@ -421,8 +451,10 @@ function render(){
   const vis=CFG.metricas.filter(m=>m.on);
   vis.forEach((m,ix)=>{
     const def=metricaDef(m.id); if(!def)return;
-    const vc=valorAgg(m.id,cur), vp=valorAgg(m.id,prev);
-    if(vc==null&&(m.id==="sessoes"||m.id==="cvr"||m.id==="rpv"))return;
+    let vc,vp;
+    if(def.special==="g15"){vc=(b&&b.freq_15d!=null)?b.freq_15d:null;vp=null}
+    else{vc=valorAgg(m.id,cur);vp=valorAgg(m.id,prev)}
+    const gcls=def.special==="g15"&&RG&&vc!=null?(vc<RG.freq_guardrail_15d*0.85?"ok":vc<RG.freq_guardrail_15d?"watch":"red"):null;
     const rg=def.regua&&RG?RG[def.regua]:null;
     const sz=m.sz||((m.viz==="line"||m.viz==="bar"||m.viz==="area"||m.viz==="tabela")?2:1);
     m.sz=sz;
@@ -435,8 +467,13 @@ function render(){
         <button class="ct" data-off="1" title="ocultar">✕</button>
       </div>
       <div class="k">${def.nome}${def.custom?" ✦":""}</div><span class="rz" title="redimensionar"></span>
-      <div class="v ${cls(vc,rg,def.inv)}">${fmt(vc,def.fmt)}${delta(vc,vp,def.inv)}</div>`;
-    if(rg){
+      <div class="v ${gcls||cls(vc,rg,def.inv)}">${fmt(vc,def.fmt)}${def.special?"":delta(vc,vp,def.inv)}</div>`;
+    if(def.special==="g15"&&RG){
+      const g=RG.freq_guardrail_15d,p=vc==null?0:Math.min(1,Math.max(0,vc/(g*1.5)));
+      h+=`<div class="gauge inv"><i style="left:${(p*100).toFixed(1)}%"></i></div>
+      <div class="glbl"><span>0</span><span>${fmt(g,"num")}</span></div>
+      <div class="cmp">janela fixa de 15d (não segue o período) · conta toda</div>`;
+    }else if(rg){
       const lo=rg.watch*0.6,hi=rg.strong*1.4,p=vc==null?0:Math.min(1,Math.max(0,(vc-lo)/(hi-lo)));
       h+=`<div class="gauge"><i style="left:${(p*100).toFixed(1)}%"></i></div>
       <div class="glbl"><span>${fmt(rg.watch,"num")}</span><span>${fmt(rg.strong,"num")}</span></div>`;
@@ -447,20 +484,12 @@ function render(){
       const s=serie(m.id,cur),last=cur.slice(-8),sl=s.slice(-8);
       h+=`<table class="tbl-mini">${last.map((r,i)=>`<tr><td>${r.date.slice(5)}</td><td>${fmt(sl[i],def.fmt)}</td></tr>`).join("")}</table>`;
     }
-    if(m.viz==="kpi"&&!rg)h+=`<div class="cmp">${PREV_OK?"período anterior: "+fmt(vp,def.fmt):"sem histórico p/ comparar — rode backfill maior"}</div>`;
+    if(vc==null&&(m.id==="sessoes"||m.id==="cvr"||m.id==="rpv"))
+      h+=`<div class="cmp" style="color:var(--warn)">sem dados — requer escopo read_reports no app Shopify</div>`;
+    else if(m.viz==="kpi"&&!rg&&!def.special)h+=`<div class="cmp">${PREV_OK?"período anterior: "+fmt(vp,def.fmt):"sem histórico p/ comparar — rode backfill maior"}</div>`;
     h+=`</div>`;
   });
 
-  /* freq 15d fixa (fora do período — janela própria) */
-  const f=b.freq_15d;
-  if(f!=null&&RG){
-    const g=RG.freq_guardrail_15d,p=Math.min(1,Math.max(0,f/(g*1.5)));
-    h+=`<div class="card nodrag"><div class="k">Guardrail · Freq 15d fixa</div>
-    <div class="v ${f<g*0.85?"ok":f<g?"watch":"red"}">${fmt(f,"num")}</div>
-    <div class="gauge inv"><i style="left:${(p*100).toFixed(1)}%"></i></div>
-    <div class="glbl"><span>0</span><span>${fmt(g,"num")}</span></div>
-    <div class="cmp">janela fixa (não segue o período) · conta toda, incl. remarketing</div></div>`;
-  }
   h+="</div>";
   $("#main").innerHTML=h;
 
@@ -611,8 +640,8 @@ $("#btnEdit").onclick=()=>{editing=!editing;document.body.classList.toggle("edit
  $("#btnEdit").classList.toggle("on",editing);$("#btnEdit").textContent=editing?"✓ pronto":"✎ editar";
  if(editing){renderLib();renderPresets()} render() };
 $$("#periodbar .chip[data-p]").forEach(c=>c.onclick=()=>{
-  periodo={tipo:c.dataset.p,de:periodo.de,ate:periodo.ate};syncUI();if(c.dataset.p!=="custom")render()});
-$("#dgo").onclick=()=>{if($("#d1").value&&$("#d2").value){periodo={tipo:"custom",de:$("#d1").value,ate:$("#d2").value};render()}};
+  periodo={tipo:c.dataset.p,de:periodo.de,ate:periodo.ate};syncUI();if(c.dataset.p!=="custom"){render();renderGer()}});
+$("#dgo").onclick=()=>{if($("#d1").value&&$("#d2").value){periodo={tipo:"custom",de:$("#d1").value,ate:$("#d2").value};render();renderGer()}};
 $("#btnCmp").onclick=()=>{comparar=!comparar;syncUI();render()};
 
 $("#fxTest").onclick=()=>testarFx(false);
@@ -645,11 +674,177 @@ $("#pImp").onclick=()=>{const io=$("#pIO");
   PRESETS[o.nome]=o.cfg;LS.set("shr_presets",PRESETS);carregarPreset(o.nome);syncUI();renderLib();renderPresets();render();
   io.classList.remove("show")}catch(e){$("#fxMsg").className="fmsg err";$("#fxMsg").textContent="✗ código inválido"}};
 
+/* =================== gerenciador =================== */
+let ADS=null, VIEW="painel";
+const G={nivel:"campanhas",conta:null,busca:"",sort:{c:"gasto_imposto",d:-1},
+  drill:{cp:null,cj:null},sel:new Set(),met:"roas",cols:["gasto_imposto","roas","cpa","compras","freq","hook","cpm"],
+  fparse:{}};
+const GCOLS=[
+ {id:"gasto_imposto",n:"Gasto c/imp",fmt:"brl",f:c=>c.sp*1.1215},
+ {id:"roas",n:"ROAS",fmt:"num",f:c=>c.sp?c.rev/c.sp:null,semaforo:true},
+ {id:"cpa",n:"CPA",fmt:"num",inv:true,f:c=>c.pur?c.sp/c.pur:null},
+ {id:"compras",n:"Compras",fmt:"int",f:c=>c.pur},
+ {id:"receita",n:"Receita",fmt:"brl",f:c=>c.rev},
+ {id:"freq",n:"Freq",fmt:"num",inv:true,f:c=>c.imp?c.fxi/c.imp:null},
+ {id:"hook",n:"Hook %",fmt:"pct",f:c=>c.imp?c.p3*100/c.imp:null},
+ {id:"ratio",n:"Ratio %",fmt:"pct",f:c=>c.p3?c.tp*100/c.p3:null},
+ {id:"cpm",n:"CPM",fmt:"num",inv:true,f:c=>c.imp?c.sp*1000/c.imp:null},
+ {id:"ctr",n:"CTR %",fmt:"pct",f:c=>c.imp?c.clk*100/c.imp:null},
+ {id:"cpc",n:"CPC",fmt:"num",inv:true,f:c=>c.clk?c.sp/c.clk:null},
+ {id:"carrinhos",n:"Carr",fmt:"int",f:c=>c.crt},
+ {id:"rscarr",n:"R$/Carr",fmt:"num",inv:true,f:c=>c.crt?c.sp/c.crt:null},
+];
+function gcol(id){return GCOLS.find(c=>c.id===id)}
+function somaDias(d,de,ate){const c={sp:0,imp:0,clk:0,pur:0,rev:0,crt:0,p3:0,tp:0,fxi:0};
+ for(const k in d){if(k<de||k>ate)continue;const a=d[k];
+  c.sp+=a[0];c.imp+=a[1];c.clk+=a[2];c.pur+=a[3];c.rev+=a[4];c.crt+=a[5];c.p3+=a[6];c.tp+=a[7];c.fxi+=a[8]}
+ return c}
+function serieDia(d,de,ate,col){const out=[],dts=[];let dt=new Date(de+"T12:00:00");
+ const fim=new Date(ate+"T12:00:00");
+ while(dt<=fim){const k=dt.toISOString().slice(0,10);dts.push(k);
+  const a=d[k];out.push(a?gcol(col).f({sp:a[0],imp:a[1],clk:a[2],pur:a[3],rev:a[4],crt:a[5],p3:a[6],tp:a[7],fxi:a[8]}):null);
+  dt.setDate(dt.getDate()+1)}
+ return {vals:out,dts}}
+function rangeDatas(){const {cur}=range();return cur.length?{de:cur[0].date,ate:cur[cur.length-1].date}:null}
+function entidades(){
+  if(!ADS)return[];
+  const B=(ADS.brands||{})[brand]||{},niv=G.nivel;
+  let lista=Object.entries(B[niv]||{}).map(([id,e])=>({id,...e}));
+  if(G.conta)lista=lista.filter(e=>e.ac===G.conta);
+  if(niv==="conjuntos"&&G.drill.cp)lista=lista.filter(e=>e.pai===G.drill.cp);
+  if(niv==="anuncios"){
+    if(G.drill.cj)lista=lista.filter(e=>e.pai===G.drill.cj);
+    for(const[pos,val]of Object.entries(G.fparse))
+      if(val)lista=lista.filter(e=>e.f&&e.f[pos]===val);
+  }
+  if(G.busca){const q=G.busca.toLowerCase();lista=lista.filter(e=>e.n.toLowerCase().includes(q))}
+  return lista}
+function renderGer(){
+  if(VIEW!=="ads")return;
+  const el=$("#ger");
+  if(!ADS){el.innerHTML='<p class="note">carregando gerenciador…</p>';return}
+  const rd=rangeDatas();
+  if(!rd){el.innerHTML='<p class="note">sem período.</p>';return}
+  const {de,ate}=rd;
+  const B=(ADS.brands||{})[brand]||{};
+  if(!B.campanhas){el.innerHTML='<p class="note">ads.json ainda sem esta marca — rode o workflow com o ETL v3.</p>';return}
+  const contas=[...new Set(Object.values(B.campanhas||{}).map(e=>e.ac))];
+  const minG=(RG&&RG.gasto_minimo_vencedor)||300, barra=(RG&&RG.roas_barra_vencedor)||4;
+  let linhas=entidades().map(e=>{
+    const c=somaDias(e.d,de,ate),row={e,c,v:{}};
+    GCOLS.forEach(cc=>row.v[cc.id]=cc.f(c));
+    row.venc=row.v.roas!=null&&row.v.roas>=barra&&row.v.gasto_imposto>=minG;
+    return row}).filter(r=>r.c.sp>0);
+  const sc=G.sort.c;
+  linhas.sort((a,b)=>((b.v[sc]??-1e18)-(a.v[sc]??-1e18))*(G.sort.d===-1?1:-1));
+
+  let h=`<div class="gbar">`;
+  [["campanhas","Campanhas"],["conjuntos","Conjuntos"],["anuncios","Anúncios"]].forEach(([k,n])=>
+    h+=`<button class="gtab${G.nivel===k?" on":""}" data-n="${k}">${n}</button>`);
+  h+=`<select id="gConta"><option value="">todas as contas</option>${contas.map(c=>`<option${G.conta===c?" selected":""}>${c}</option>`).join("")}</select>`;
+  h+=`<input type="text" id="gBusca" placeholder="buscar nome…" value="${G.busca.replace(/"/g,"&quot;")}">`;
+  h+=`<select id="gColAdd" title="adicionar coluna"><option value="">+ coluna</option>${GCOLS.filter(c=>!G.cols.includes(c.id)).map(c=>`<option value="${c.id}">${c.n}</option>`).join("")}</select>`;
+  h+=`<span style="margin-left:auto;font:400 11px/1.4 var(--f-num);color:var(--mut)">${linhas.length} com gasto · ${de} → ${ate}</span></div>`;
+
+  if(G.drill.cp||G.drill.cj){
+    const cp=G.drill.cp&&B.campanhas[G.drill.cp],cj=G.drill.cj&&B.conjuntos[G.drill.cj];
+    h+=`<p class="crumb"><a data-clr="1">todas</a>${cp?` › <b>${cp.n}</b>`:""}${cj?` › <b>${cj.n}</b>`:""} <a data-clr="1">✕ limpar filtro</a></p>`;
+  }
+  if(G.nivel==="anuncios"){
+    const ads=entidades().filter(e=>e.f);
+    h+=`<div style="display:flex;flex-wrap:wrap;gap:5px;margin:0 0 10px">`;
+    for(let p=0;p<9;p++){
+      const vals=[...new Set(ads.map(e=>e.f[p]).filter(Boolean))];
+      if(vals.length>1&&vals.length<=25)
+        h+=`<select class="fsel" data-p="${p}"><option value="">campo ${p+1}</option>${vals.map(v=>`<option${G.fparse[p]===v?" selected":""}>${v}</option>`).join("")}</select>`;
+    }
+    h+=`</div>`;
+  }
+
+  h+=`<div class="gtwrap"><table class="gt"><thead><tr><th style="width:26px"></th><th class="tl" data-s="__n">Nome</th>`;
+  G.cols.forEach(id=>{const c=gcol(id);
+    h+=`<th data-s="${id}" title="ordenar / clique duplo remove">${c.n}${sc===id?(G.sort.d===-1?" ↓":" ↑"):""}</th>`});
+  h+=`</tr></thead><tbody>`;
+  linhas.slice(0,300).forEach(r=>{
+    const st=r.e.st,dot=st?`<span class="stdot" style="background:${st==="ACTIVE"?"var(--pos)":"var(--mut)"}" title="${st}"></span>`:"";
+    const fp=G.nivel==="anuncios"&&!r.e.f?`<span class="selo fp" title="nome fora do padrão de 9 campos">fora do padrão</span>`:"";
+    h+=`<tr><td><input type="checkbox" class="gsel" data-id="${r.e.id}"${G.sel.has(r.e.id)?" checked":""}></td>
+    <td class="tl nome" data-drill="${r.e.id}" title="${r.e.n.replace(/"/g,"&quot;")}">${dot}${r.e.n}${r.venc?`<span class="selo">vencedor</span>`:""}${fp}</td>`;
+    G.cols.forEach(id=>{const c=gcol(id),v=r.v[id];
+      let k="";if(c.semaforo&&v!=null)k=v>=barra?"ok":v>=barra*0.75?"watch":"red";
+      if(id==="freq"&&v!=null&&RG)k=v>RG.freq_fadiga_diaria?"red":"";
+      h+=`<td class="${k}">${fmt(v,c.fmt)}</td>`});
+    h+=`</tr>`});
+  h+=`</tbody></table></div>`;
+
+  if(G.sel.size){
+    const met=gcol(G.met);
+    h+=`<div class="gchart"><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+      <span style="font:600 11px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)">${G.sel.size} selecionada(s) · diário</span>
+      <select id="gMet">${GCOLS.map(c=>`<option value="${c.id}"${G.met===c.id?" selected":""}>${c.n}</option>`).join("")}</select>
+      <button class="chip" id="gClear" style="margin-left:auto">limpar seleção</button></div>`;
+    const CORES=["#378ADD","#D85A30","#1D9E75","#7F77DD","#D4537E","#BA7517"];
+    const todos=entidades().filter(e=>G.sel.has(e.id)).slice(0,6);
+    const series=todos.map(e=>serieDia(e.d,de,ate,G.met));
+    const flat=series.flatMap(s=>s.vals).filter(v=>v!=null);
+    if(flat.length){
+      const mn=Math.min(...flat),mx=Math.max(...flat),rg2=(mx-mn)||1,W=820,H=150,T=10,Bm=18,L=46,R=8;
+      const dts=series[0].dts,n=dts.length;
+      const X=i=>L+(i/((n-1)||1))*(W-L-R),PY=v=>H-Bm-((v-mn)/rg2)*(H-T-Bm);
+      h+=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">`;
+      [[mx,PY(mx)],[(mn+mx)/2,PY((mn+mx)/2)],[mn,PY(mn)]].forEach(([v,y])=>{
+        h+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="var(--rule)" stroke-width="0.6" stroke-dasharray="2 4"/>
+        <text x="${L-5}" y="${y+3}" text-anchor="end" font-size="9" fill="var(--mut)" font-family="var(--f-num)">${fmt(v,met.fmt)}</text>`});
+      series.forEach((s,si)=>{let d="",pen=false;
+        s.vals.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?" L":" M")+X(i).toFixed(1)+" "+PY(v).toFixed(1);pen=true});
+        h+=`<path d="${d}" fill="none" stroke="${CORES[si%6]}" stroke-width="1.7"/>`});
+      for(let j=0;j<6;j++){const i=Math.round(j*(n-1)/5);
+        h+=`<text x="${X(i).toFixed(1)}" y="${H-4}" text-anchor="${j===0?"start":j===5?"end":"middle"}" font-size="9" fill="var(--mut)" font-family="var(--f-num)">${dts[i].slice(5).split("-").reverse().join("/")}</text>`}
+      h+=`</svg><div class="chleg">${todos.map((e,i)=>`<span><i style="background:${CORES[i%6]}"></i>${e.n.slice(0,46)}</span>`).join("")}</div>`;
+    }
+    h+=`</div>`;
+  }
+  el.innerHTML=h;
+
+  $$(".gtab").forEach(t=>t.onclick=()=>{G.nivel=t.dataset.n;G.sel.clear();renderGer()});
+  $("#gConta").onchange=e=>{G.conta=e.target.value||null;renderGer()};
+  $("#gBusca").oninput=e=>{G.busca=e.target.value;renderGer();const i=$("#gBusca");i.focus();i.setSelectionRange(i.value.length,i.value.length)};
+  $("#gColAdd").onchange=e=>{if(e.target.value){G.cols.push(e.target.value);renderGer()}};
+  $$(".gt th[data-s]").forEach(th=>{
+    th.onclick=()=>{const c=th.dataset.s;if(c==="__n")return;
+      if(G.sort.c===c)G.sort.d*=-1;else G.sort={c,d:-1};renderGer()};
+    th.ondblclick=()=>{const c=th.dataset.s;if(c==="__n"||G.cols.length<=2)return;
+      G.cols=G.cols.filter(x=>x!==c);renderGer()}});
+  $$(".gsel").forEach(cb=>cb.onchange=()=>{cb.checked?G.sel.add(cb.dataset.id):G.sel.delete(cb.dataset.id);renderGer()});
+  $$("[data-clr]").forEach(a=>a.onclick=()=>{G.drill={cp:null,cj:null};renderGer()});
+  $$(".gt td.nome").forEach(td=>td.onclick=()=>{
+    const id=td.dataset.drill;
+    if(G.nivel==="campanhas"){G.drill.cp=id;G.nivel="conjuntos"}
+    else if(G.nivel==="conjuntos"){G.drill.cj=id;G.nivel="anuncios"}
+    else return;
+    G.sel.clear();renderGer()});
+  $$(".fsel").forEach(s=>s.onchange=()=>{G.fparse[s.dataset.p]=s.value||null;renderGer()});
+  const gm=$("#gMet");if(gm)gm.onchange=e=>{G.met=e.target.value;renderGer()};
+  const gc=$("#gClear");if(gc)gc.onclick=()=>{G.sel.clear();renderGer()};
+}
+async function carregarAds(){
+  if(ADS)return;
+  try{ADS=await fetchLocal("../data/ads.json");renderGer();return}catch(e){}
+  const repo=localStorage.getItem("shrigma_repo"),pat=localStorage.getItem("shrigma_pat");
+  if(repo&&pat){try{ADS=await fetchGH(repo,pat,"data/ads.json")}catch(e){ADS={brands:{}}}}
+  renderGer()}
+$("#btnView").onclick=()=>{
+  VIEW=VIEW==="painel"?"ads":"painel";
+  document.body.classList.toggle("vads",VIEW==="ads");
+  $("#btnView").textContent=VIEW==="ads"?"▤ painel":"▦ gerenciador";
+  $("#btnView").classList.toggle("on",VIEW==="ads");
+  if(VIEW==="ads"){carregarAds();renderGer()}};
+
 /* =================== boot / dados =================== */
 function renderTabs(){
   $("#tabs").innerHTML=brands.map(id=>
     `<button class="tab" role="tab" aria-selected="${id===brand}" data-id="${id}">${(LATEST.brands[id]||{}).nome||id}</button>`).join("");
-  $$(".tab").forEach(t=>t.onclick=()=>{brand=t.dataset.id;renderTabs();render()});
+  $$(".tab").forEach(t=>t.onclick=()=>{brand=t.dataset.id;renderTabs();render();renderGer()});
 }
 function boot(hist,latest){
   HIST=hist;LATEST=latest;RG=latest.reguas||null;
